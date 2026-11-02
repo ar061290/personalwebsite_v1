@@ -60,46 +60,21 @@
   padding: calc(var(--header-h) + 6vh) clamp(16px, 6vw, 96px) 10vh;
 }
 
+/* A band of spectra noise just under the cut line, fading into the paper. */
+.about__spectra {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: clamp(300px, 60vh, 660px);
+  z-index: 0;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.9) 45%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.9) 45%, transparent 100%);
+}
+
 .about__photo {
   position: relative;
+  z-index: 1;
   justify-self: start;
   width: min(100%, 420px);
-  margin: 0;
-  padding: 10px 10px 12px;
-  background: #fdfcf9;
-  transform: rotate(-2.5deg);
-  box-shadow:
-    0 1px 2px rgba(40, 24, 20, 0.12),
-    0 10px 28px -8px rgba(40, 24, 20, 0.22);
-}
-
-.about__photo img {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
-}
-
-.about__tape {
-  position: absolute;
-  top: -14px;
-  z-index: 1;
-  width: 92px;
-  height: 28px;
-  opacity: 0.82;
-  mix-blend-mode: multiply;
-}
-
-.about__tape--left {
-  left: -18px;
-  background: #f6c4ce;
-  transform: rotate(-28deg);
-}
-
-.about__tape--right {
-  right: -18px;
-  background: #cfe0c3;
-  transform: rotate(24deg);
 }
 
 .about__content {

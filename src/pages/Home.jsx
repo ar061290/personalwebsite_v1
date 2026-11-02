@@ -4,6 +4,8 @@ import MelonCanvas from '../components/Melon/MelonCanvas.jsx'
 import useStickers from '../components/Stickers/useStickers.js'
 import ScrollHint from '../components/ScrollHint/ScrollHint.jsx'
 import JuiceDrop from '../components/JuiceDrop/JuiceDrop.jsx'
+import ScrapPhoto from '../components/Photo/ScrapPhoto.jsx'
+import SpectraNoise from '../components/SpectraNoise/SpectraNoise.jsx'
 import aadiPhoto from '../assets/photos/aadi.webp'
 import './Home.css'
 
@@ -27,11 +29,9 @@ export default function Home({ introDone }) {
       </section>
 
       <section className="about">
-        <figure className="about__photo">
-          <span className="about__tape about__tape--left" aria-hidden="true" />
-          <span className="about__tape about__tape--right" aria-hidden="true" />
-          <img src={aadiPhoto} alt="Aadi Ramnani" width="760" height="950" />
-        </figure>
+        {/* Picks up right where the hero's fluid and stickers are cut off. */}
+        <SpectraNoise className="about__spectra" />
+        <ScrapPhoto className="about__photo" src={aadiPhoto} alt="Aadi Ramnani" width="760" height="950" />
         <div className="about__content" />
         <div className="about__impact" ref={impactRef} data-juice-impact aria-hidden="true" />
       </section>

@@ -1,0 +1,94 @@
+@property --lerp {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+.scrap-photo {
+  --reveal-ease: cubic-bezier(0.86, 0, 0.31, 1);
+  --reveal-time: 1.5s;
+
+  position: relative;
+  margin: 0;
+  padding: 10px 10px 12px;
+  background: #fdfcf9;
+  transform: rotate(-2.5deg);
+  box-shadow:
+    0 1px 2px rgba(40, 24, 20, 0.12),
+    0 10px 28px -8px rgba(40, 24, 20, 0.22);
+}
+
+.scrap-photo__tape {
+  position: absolute;
+  top: -14px;
+  z-index: 1;
+  width: 92px;
+  height: 28px;
+  opacity: 0.82;
+  mix-blend-mode: multiply;
+}
+
+.scrap-photo__tape--left {
+  left: -18px;
+  background: #f6c4ce;
+  transform: rotate(-28deg);
+}
+
+.scrap-photo__tape--right {
+  right: -18px;
+  background: #cfe0c3;
+  transform: rotate(24deg);
+}
+
+/* Lerp: the picture's corners pull in with scroll speed (top-left and
+   bottom-right going down, the other two going up) and it zooms slightly. */
+.scrap-photo__window {
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  transform: translateZ(0);
+  clip-path: polygon(
+    max(calc(var(--lerp) * 0.25%), 0%) max(calc(var(--lerp) * 0.25%), 0%),
+    min(calc(100% - var(--lerp) * -0.25%), 100%) max(calc(var(--lerp) * -0.25%), 0%),
+    min(calc(100% - var(--lerp) * 0.25%), 100%) min(calc(100% - var(--lerp) * 0.25%), 100%),
+    max(calc(var(--lerp) * -0.25%), 0%) min(calc(100% - var(--lerp) * -0.25%), 100%)
+  );
+}
+
+.scrap-photo__window img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  scale: calc(1 + min((var(--lerp) * var(--lerp) * 0.0001), 1));
+}
+
+/* Reveal: out of view it is a zoomed, invisible point at the centre; coming
+   into view it opens to the full frame. Leaving resets instantly (off screen). */
+.scrap-photo__reveal {
+  width: 100%;
+  height: 100%;
+  scale: 2;
+  opacity: 0;
+  clip-path: polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%);
+}
+
+.scrap-photo.is-inview .scrap-photo__reveal {
+  scale: 1;
+  opacity: 1;
+  clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+  transition:
+    scale var(--reveal-time) var(--reveal-ease),
+    opacity var(--reveal-time) var(--reveal-ease),
+    clip-path var(--reveal-time) var(--reveal-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrap-photo__reveal {
+    scale: 1;
+    clip-path: none;
+  }
+
+  .scrap-photo.is-inview .scrap-photo__reveal {
+    transition: opacity 0.6s ease;
+  }
+}

@@ -1,0 +1,17 @@
+/*
+ * Greek-letter stickers: GFS Didot (Greek Font Society, OFL) — the classic
+ * Didot Greek used in Greek book printing. Only the Greek subset is shipped,
+ * so unicode-range keeps it from ever touching Latin text.
+ */
+@font-face {
+  font-family: 'GFS Didot';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('../fonts/gfs-didot-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+
+:root {
+  --font-greek: 'GFS Didot', serif;
+}

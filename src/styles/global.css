@@ -1,0 +1,95 @@
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-display: swap;
+  src: url('../assets/fonts/archivo-latin-var.woff2') format('woff2');
+}
+
+:root {
+  --bg: #ffffff;
+  --ink: #0c0c0c;
+  --font-ui: 'Archivo', system-ui, sans-serif;
+  --header-h: 64px;
+
+  /* Stacking, bottom to top: paper (body) → juice stain → page content
+     (photo, text) → stickers (under) → fluid → stickers (over) → falling
+     drop → melon → hero overlays. */
+  --z-stain: 1;
+  --z-page: 2;
+  --z-sticker-under: 3;
+  --z-fluid: 4;
+  --z-sticker-over: 5;
+  --z-drop: 6;
+  --z-melon: 7;
+  --z-content: 8;
+  --z-header: 50;
+  --z-eyes: 60;
+  --z-intro: 1000;
+  --z-cursor: 2000;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+body {
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Set while the intro is on screen. */
+html.is-intro,
+html.is-intro body {
+  overflow: hidden;
+}
+
+img,
+canvas,
+svg {
+  display: block;
+}
+
+::selection {
+  background: #e8798f;
+  color: #fff;
+}
+
+.page {
+  min-height: 100vh;
+  padding: calc(var(--header-h) + 12vh) clamp(16px, 6vw, 96px) 64px;
+}
+
+.page__kicker {
+  margin: 0 0 12px;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.page__title {
+  margin: 0 0 32px;
+  font-size: clamp(48px, 9vw, 140px);
+  font-weight: 800;
+  font-stretch: 125%;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+}
+
+.page__back {
+  color: inherit;
+  font-size: 14px;
+}

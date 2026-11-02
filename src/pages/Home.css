@@ -1,0 +1,132 @@
+.home {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+}
+
+.sticker-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sticker-layer--under {
+  z-index: var(--z-sticker-under);
+}
+
+.sticker-layer--over {
+  z-index: var(--z-sticker-over);
+}
+
+.fluid-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: var(--z-fluid);
+  pointer-events: none;
+}
+
+/* No z-index here on purpose: the hero's layers stack directly against the
+   about section using the --z-* order from global.css. */
+.hero {
+  position: relative;
+  height: 100vh;
+  min-height: 560px;
+}
+
+.hero__melon {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-melon);
+  width: 100%;
+  height: 100%;
+}
+
+.hero .scroll-hint {
+  z-index: var(--z-content);
+}
+
+/* ── about: the page the juice lands on ── */
+.about {
+  position: relative;
+  z-index: var(--z-page);
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  align-items: center;
+  gap: clamp(24px, 5vw, 80px);
+  padding: calc(var(--header-h) + 6vh) clamp(16px, 6vw, 96px) 10vh;
+}
+
+.about__photo {
+  position: relative;
+  justify-self: start;
+  width: min(100%, 420px);
+  margin: 0;
+  padding: 10px 10px 12px;
+  background: #fdfcf9;
+  transform: rotate(-2.5deg);
+  box-shadow:
+    0 1px 2px rgba(40, 24, 20, 0.12),
+    0 10px 28px -8px rgba(40, 24, 20, 0.22);
+}
+
+.about__photo img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+}
+
+.about__tape {
+  position: absolute;
+  top: -14px;
+  z-index: 1;
+  width: 92px;
+  height: 28px;
+  opacity: 0.82;
+  mix-blend-mode: multiply;
+}
+
+.about__tape--left {
+  left: -18px;
+  background: #f6c4ce;
+  transform: rotate(-28deg);
+}
+
+.about__tape--right {
+  right: -18px;
+  background: #cfe0c3;
+  transform: rotate(24deg);
+}
+
+.about__content {
+  min-height: 1px;
+}
+
+/* Where the juice drop lands. */
+.about__impact {
+  position: absolute;
+  left: 50%;
+  top: 56%;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+@media (max-width: 760px) {
+  .about {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .about__photo {
+    width: min(78%, 340px);
+  }
+
+  .about__impact {
+    top: 72%;
+  }
+}

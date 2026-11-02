@@ -1,0 +1,50 @@
+.googly {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: var(--z-eyes);
+  width: 56px;
+  height: 36px;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.googly__eye {
+  position: relative;
+  width: 24px;
+  height: 36px;
+  border-radius: 40px;
+  overflow: hidden;
+  background: rgb(255, 254, 253);
+  /* Thin outline so the white of the eye still reads on a white page. */
+  box-shadow: inset 0 0 0 2px rgb(12, 12, 12);
+}
+
+.googly__pupil-track {
+  position: absolute;
+  inset: 7px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.googly__pupil {
+  position: relative;
+  flex: none;
+  width: 16px;
+  height: 22px;
+  border-radius: 100%;
+  background: rgb(12, 12, 12);
+}
+
+.googly__glint {
+  position: absolute;
+  bottom: 3px;
+  left: calc(50% - 1.5px);
+  width: 3px;
+  height: 3px;
+  border-radius: 100%;
+  background: rgb(255, 254, 253);
+}

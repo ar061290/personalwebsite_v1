@@ -1,0 +1,116 @@
+/*
+ * Click-to-place stickers — a clone of vegan.ning-h.com's `.sticker-box` styles
+ * (theme global.css). Timings, easings and transform-origin are theirs.
+ *
+ * Both faces start in the top half of the 2H-tall box: the back shows (its art in
+ * view), the front's art is pushed out of its window. `is-active` slides both
+ * windows down one sticker height and moves the art inside them so the front is
+ * uncovered top-to-bottom while the back slides off under it: a peel-down.
+ */
+
+.stk-box {
+  position: absolute;
+  transform-origin: 50% 75%; /* centre of the final sticker (bottom half of the box) */
+  filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.1));
+  pointer-events: none;
+  user-select: none;
+  will-change: transform, opacity;
+}
+
+.stk {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  transform: translate3d(0, 0, 0);
+  transition: transform 0.75s ease;
+  will-change: transform;
+}
+
+.stk__art {
+  width: 100%;
+  height: 100%;
+  transform: translate3d(0, 0, 0);
+  transition: transform 0.75s ease;
+  will-change: transform;
+}
+
+.stk--front {
+  z-index: 1;
+}
+
+.stk--front .stk__art {
+  transform: translate3d(0, 100%, 0);
+}
+
+.stk--back {
+  z-index: 2;
+}
+
+.stk-box.is-active .stk--front {
+  transform: translate3d(0, 100%, 0);
+}
+
+.stk-box.is-active .stk--front .stk__art {
+  transform: translate3d(0, 0, 0);
+}
+
+.stk-box.is-active .stk--back {
+  transform: translate3d(0, 100%, 0);
+}
+
+.stk-box.is-active .stk--back .stk__art {
+  transform: translate3d(0, 100%, 0);
+}
+
+.stk__media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  -webkit-user-drag: none;
+}
+
+/* Generated back: flat backing-paper silhouette (#d4d4d4), mirrored like a flipped sticker. */
+.stk__media--back {
+  transform: scaleY(-1);
+  filter: brightness(0) invert(0.83);
+}
+
+.stk-box.is-removing {
+  animation: stk-disappear 0.3s ease-in forwards;
+}
+
+@keyframes stk-disappear {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(65deg) scale(0);
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .stk-box {
+    filter: drop-shadow(0.5px 0.5px 0.5px rgba(0, 0, 0, 0.05));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stk,
+  .stk__art {
+    transition-duration: 0.3s;
+  }
+
+  .stk-box.is-removing {
+    animation-name: stk-disappear-reduced;
+  }
+
+  @keyframes stk-disappear-reduced {
+    to {
+      opacity: 0;
+      transform: scale(0);
+    }
+  }
+}

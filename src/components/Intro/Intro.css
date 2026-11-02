@@ -1,0 +1,161 @@
+/* Intro overlay — a port of sofaknows.com's #lo / #z rules (d.css).
+   Everything is sized off --intro-u, their row font-size: 3.3069vw on wide
+   screens, 5.55555vh at aspect ratios up to 1.79. The min() only kicks in on
+   portrait phones, where their desktop sheet would push the name off screen. */
+
+.intro {
+  --intro-u: 3.3069vw;
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-intro);
+  overflow: hidden;
+  color: var(--ink, #0c0c0c);
+  pointer-events: auto;
+  /* No pan/zoom gestures reach the page while it is scroll-locked. */
+  touch-action: none;
+  user-select: none;
+}
+
+@media (max-aspect-ratio: 1.79) {
+  .intro {
+    --intro-u: min(5.55555vh, 9.07vw);
+  }
+}
+
+/* #lo-bg */
+.intro__bg {
+  position: absolute;
+  inset: 0;
+  background: var(--bg, #fff);
+}
+
+/* #lo-pr — 2px line across the top */
+.intro__bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  width: 100%;
+  height: 2px;
+  overflow: hidden;
+  will-change: transform;
+}
+
+.intro__bar > div {
+  width: 100%;
+  height: 100%;
+  background: var(--ink, #0c0c0c);
+  transform: translate(-100.4%);
+  will-change: transform;
+}
+
+/* #lo-co */
+.intro__rows {
+  position: absolute;
+  top: 0;
+  left: 2.38097vw;
+  right: 2.38097vw;
+  z-index: 3;
+  height: 100%;
+  padding-top: 2.38097vw;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+/* #lo-co-0 / #lo-co-2. Their face is Druk Wide Medium (cap height 0.744em);
+   Archivo at 125% / 900 is the closest free match. Its cap height is 0.686em,
+   so the size is scaled by 0.744 / 0.686 = 1.0845 while the line pitch stays
+   at their font-size: same row rhythm, same letter height. */
+.intro__block {
+  position: relative;
+  z-index: 2;
+  font-family: var(--font-ui);
+  font-weight: 900;
+  font-stretch: 125%;
+  font-size: calc(var(--intro-u) * 1.0845);
+  line-height: var(--intro-u);
+  white-space: nowrap;
+}
+
+.intro__block > span {
+  display: none;
+}
+
+/* #lo-co-1 — photo strip (or a plain text row when there are no photos) */
+.intro__block--mid {
+  z-index: 1;
+}
+
+.intro__strip {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.33069vw;
+  width: max-content;
+}
+
+/* 4.33601vw / 7.28444vh in d.css = 1.3112 × the row size */
+.intro__fig {
+  display: none;
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto;
+  height: calc(var(--intro-u) * 1.3112);
+  aspect-ratio: 0.86;
+}
+
+.intro__fig img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* #z — eight white layers, each carrying the stretched name */
+.intro__z {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  backface-visibility: hidden;
+}
+
+.intro__layer {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg, #fff);
+  color: var(--ink, #0c0c0c);
+  transform: translate(-101%);
+  will-change: transform;
+}
+
+.intro__mark {
+  position: relative;
+  top: 0.925932vw;
+  width: 100%;
+  height: calc(100% - 1.85186vw);
+}
+
+.intro__mark text {
+  font-family: var(--font-ui);
+  font-weight: 900;
+  font-stretch: 62.5%;
+  font-size: 1000px;
+  letter-spacing: -35px;
+  fill: currentColor;
+}
+
+/* prefers-reduced-motion: one still row, then a short fade */
+.intro--reduced .intro__bar,
+.intro--reduced .intro__z {
+  display: none;
+}
+
+.intro--leaving {
+  opacity: 0;
+  transition: opacity 400ms cubic-bezier(0.48, 0, 0.52, 1);
+}

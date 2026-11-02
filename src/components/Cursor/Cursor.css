@@ -1,0 +1,102 @@
+/*
+ * Custom cursor, cloned from vegan.ning-h.com's `.cursor` (see specs/cursor-stickers.md).
+ * The native pointer is hidden and replaced by a "+" sitting exactly on the hotspot,
+ * with the label trailing it. Light ink + `difference` blending keeps it legible
+ * on white, on the rose melon and on black alike.
+ */
+
+html.has-custom-cursor,
+html.has-custom-cursor *,
+html.has-custom-cursor *::before,
+html.has-custom-cursor *::after {
+  cursor: none !important;
+}
+
+.cursor {
+  /* Reference: text-xs = clamp(1rem, .933rem + .1852vw, 1.2rem) at a 10px root. */
+  --cursor-fs: clamp(10px, 9.333px + 0.1852vw, 12px);
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  z-index: var(--z-cursor);
+  pointer-events: none;
+  user-select: none;
+  mix-blend-mode: difference;
+  color: #f7f7f7; /* reference --light */
+}
+
+/* Hidden until the pointer is known, and whenever it leaves the window. */
+.cursor__presence {
+  opacity: 0;
+}
+
+/* 9×9 crosshair whose centre pixel is the hotspot. */
+.cursor__plus {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  width: 9px;
+  height: 9px;
+  will-change: transform;
+}
+
+.cursor__plus::before,
+.cursor__plus::after {
+  content: '';
+  position: absolute;
+  background: currentColor;
+}
+
+.cursor__plus::before {
+  top: 4px;
+  left: 0;
+  width: 9px;
+  height: 1px;
+}
+
+.cursor__plus::after {
+  top: 0;
+  left: 4px;
+  width: 1px;
+  height: 9px;
+}
+
+/* Inline padding = the gap between the "+" and the word, on whichever side the label sits. */
+.cursor__label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 0 0.7em;
+  font-size: var(--cursor-fs);
+  opacity: 0; /* faded in by the entrance tween */
+  will-change: transform;
+}
+
+/* Reference: `w-fit h-fit overflow-clip` mask the text slides in and out of. */
+.cursor__clip {
+  width: fit-content;
+  height: fit-content;
+  overflow: hidden;
+  overflow: clip;
+  overflow-clip-margin: 1px;
+}
+
+.cursor_contain {
+  will-change: transform;
+}
+
+.cursor_text {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 1em;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.3px; /* reference body: 0.03rem */
+  text-transform: uppercase;
+  white-space: nowrap;
+  /* Box = cap height, so centring the label centres the capitals on the "+". */
+  text-box: trim-both cap alphabetic;
+}

@@ -33,7 +33,7 @@ export const TRACK = {
 }
 const VOLUME = 0.6 // of full volume: background music, under the page
 // shown with the track by the system's media controls
-const ARTWORK = '/favicon.svg'
+const ARTWORK = `${import.meta.env.BASE_URL}favicon.svg`
 const FILE = `${import.meta.env.BASE_URL}music/romanticize-studying.mp3`
 const KEY = 'aadi-music' // { on, t }: whether the visitor wants it, and where it had got to (seconds)
 // the events that count as the visitor's own doing, inside which a browser lets music start. A touch's

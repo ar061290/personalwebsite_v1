@@ -14,7 +14,7 @@ export const NAV = [
 ]
 
 export const RESUME = {
-  href: '/Aadi_Ramnani_Resume.pdf',
+  href: `${import.meta.env.BASE_URL}Aadi_Ramnani_Resume.pdf`,
   file: 'Aadi_Ramnani_Resume.pdf',
 }
 

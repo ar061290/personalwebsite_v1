@@ -6,6 +6,7 @@ import { useLocation } from 'react-router-dom'
 import ScribbleLink from '../Header/Scribble.jsx'
 import { navTarget } from '../Header/sectionScroll.js'
 import NameBanner from './NameBanner.jsx'
+import MessageMe from './MessageMe.jsx'
 import { ELSEWHERE, EMAIL, NAV, PLACE, RESUME } from '../../content/site.js'
 import './Footer.css'
 
@@ -38,6 +39,9 @@ export default function Footer() {
           <ScribbleLink className="site-footer__email" href={`mailto:${EMAIL}`} loop={1}>
             {EMAIL}
           </ScribbleLink>
+          <div>
+            <MessageMe />
+          </div>
         </div>
 
         <nav className="site-footer__col" aria-label="Pages">

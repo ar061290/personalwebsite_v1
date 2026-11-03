@@ -9,7 +9,9 @@ const reducedMotion = () =>
 export function scrollToSection(id, { smooth = true } = {}) {
   const el = document.getElementById(id)
   if (!el) return false
-  const top = el.getBoundingClientRect().top + window.scrollY
+  // (a target can keep clear of the fixed header with CSS scroll-margin-top)
+  const margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0
+  const top = el.getBoundingClientRect().top + window.scrollY - margin
   window.scrollTo({ top: Math.max(0, top), behavior: smooth && !reducedMotion() ? 'smooth' : 'auto' })
   return true
 }

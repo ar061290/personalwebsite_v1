@@ -1,0 +1,50 @@
+/* The research page's lattice (Lattice.jsx): a canvas with no fill of its own, so the paper shows
+   through, and a quiet caption under it. It fills whatever box it is given (ContentPage.css's
+   .cpage__art places it): the canvas takes the box's width at the drawing's own proportions, shorter
+   if the box is (the drawing is fitted inside the canvas either way), and the two sit centred in it. */
+.lattice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+.lattice__canvas {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  min-height: 0;
+  max-height: calc(100% - 30px); /* room for the caption */
+  /* a sideways drag turns it; an up-and-down one still scrolls the page */
+  touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.lattice__canvas:active {
+  cursor: grabbing;
+}
+
+/* "LaAlO₃ / SrTiO₃ · illustrative": the formulas in their own case, the rest lowercase and grey, like
+   the inference figure's tags */
+.lattice__caption {
+  max-width: 100%;
+  margin: 8px 0 0;
+  font-size: 11px;
+  line-height: 1.35;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-wrap: balance;
+  color: var(--ink-soft);
+}
+
+/* Archivo's own subscripts would be fallback glyphs, so the figures are set small and dropped */
+.lattice__caption sub {
+  font-size: 0.8em;
+  line-height: 0;
+  vertical-align: -0.3em;
+}

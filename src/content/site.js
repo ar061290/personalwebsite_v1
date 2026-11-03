@@ -21,7 +21,7 @@ export const RESUME = {
 export const EMAIL = 'aadi.ramnani@gmail.com'
 
 export const ELSEWHERE = [
-  { key: 'linkedin', label: 'linkedin', href: 'https://www.linkedin.com/in/aadi-ramnani-493485202' },
+  { key: 'linkedin', label: 'linkedin', href: 'https://www.linkedin.com/in/aadi-r-493485202/' },
   { key: 'github', label: 'github', href: 'https://github.com/ar061290' },
   { key: 'email', label: 'email', href: `mailto:${EMAIL}` },
 ]

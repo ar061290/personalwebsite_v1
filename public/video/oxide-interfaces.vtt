@@ -1,0 +1,974 @@
+WEBVTT
+
+00:00:00.304 --> 00:00:05.734
+Take two crystals that block
+electric current, LaAlO₃ and SrTiO₃.
+
+00:00:05.930 --> 00:00:09.820
+Grow a few layers of one on the other,
+and the boundary between them conducts.
+
+00:00:10.241 --> 00:00:12.251
+Fifty research papers tell this story.
+
+00:00:12.437 --> 00:00:14.627
+They cover electrons
+trapped at the boundary,
+
+00:00:15.057 --> 00:00:16.827
+heat carried by atomic vibrations,
+
+00:00:17.197 --> 00:00:19.307
+and a computer method that predicts both.
+
+00:00:20.471 --> 00:00:24.641
+We will build up to it in twelve steps,
+starting from IGCSE physics.
+
+00:00:25.022 --> 00:00:26.872
+Each step uses the ones before it.
+
+00:00:27.671 --> 00:00:31.921
+Some things shrink by the same fraction
+each step, like radioactive decay.
+
+00:00:32.217 --> 00:00:35.167
+We write this with the number e,
+about 2.718.
+
+00:00:35.628 --> 00:00:39.578
+The function e to the x changes
+at a rate equal to its own value.
+
+00:00:39.774 --> 00:00:42.704
+The same shape returns later
+as the Boltzmann factor.
+
+00:00:43.671 --> 00:00:45.041
+A wave needs two rates.
+
+00:00:45.312 --> 00:00:48.302
+Angular frequency, omega,
+counts phase per second.
+
+00:00:48.498 --> 00:00:50.958
+Wavenumber, k, counts phase per metre.
+
+00:00:50.969 --> 00:00:54.519
+Dividing one by the other gives
+the wave speed, f times lambda.
+
+00:00:54.835 --> 00:00:58.485
+Euler's formula turns a wave into
+a point turning round a circle.
+
+00:00:59.338 --> 00:01:01.588
+A matrix turns one vector into another.
+
+00:01:01.774 --> 00:01:05.164
+This one keeps the vector one,
+one the same, and stretches one,
+
+00:01:05.174 --> 00:01:06.504
+minus one by three.
+
+00:01:06.685 --> 00:01:11.155
+These special vectors are eigenvectors,
+and the stretch factors are eigenvalues.
+
+00:01:11.531 --> 00:01:16.081
+In physics, eigenvalues give vibration
+frequencies and allowed energies.
+
+00:01:17.004 --> 00:01:19.839
+A spring pulls back with
+a force of minus k x.
+
+00:01:19.850 --> 00:01:24.780
+Newton's second law then gives a
+vibration at omega equals root k over m.
+
+00:01:24.941 --> 00:01:27.201
+Bonds between atoms behave like springs.
+
+00:01:27.462 --> 00:01:31.172
+A typical atom on its bond
+vibrates at about five terahertz.
+
+00:01:31.938 --> 00:01:34.828
+Now line up a long chain
+of atoms joined by springs.
+
+00:01:35.249 --> 00:01:37.759
+A wave along it obeys
+a dispersion relation,
+
+00:01:38.089 --> 00:01:40.039
+which links frequency to wavenumber.
+
+00:01:40.240 --> 00:01:42.050
+Long waves are ordinary sound.
+
+00:01:42.276 --> 00:01:45.646
+The frequency peaks when neighbours
+move in opposite directions.
+
+00:01:45.912 --> 00:01:50.862
+Every distinct wave fits between minus pi
+over a and pi over a, the Brillouin zone.
+
+00:01:51.771 --> 00:01:54.661
+Send a wave into a heavier rope,
+and part of it reflects.
+
+00:01:55.047 --> 00:01:58.277
+The reflected share depends
+on the impedance of each side.
+
+00:01:58.478 --> 00:02:02.528
+If one impedance is twice the other,
+89 percent of the energy passes.
+
+00:02:02.844 --> 00:02:04.854
+So every interface reflects some heat.
+
+00:02:05.065 --> 00:02:09.285
+A stack of repeating layers reflects
+waves with a wavelength of twice the layer
+
+00:02:09.285 --> 00:02:09.834
+spacing.
+
+00:02:10.871 --> 00:02:14.981
+A huge flat sheet of charge makes a
+field that does not weaken with distance.
+
+00:02:15.357 --> 00:02:17.707
+Put a positive sheet
+next to a negative one,
+
+00:02:17.737 --> 00:02:19.527
+and the field is trapped between them.
+
+00:02:19.653 --> 00:02:22.123
+A steady field across a
+distance builds a voltage,
+
+00:02:22.533 --> 00:02:23.893
+V equals E d.
+
+00:02:23.904 --> 00:02:26.534
+This one line will explain
+the oxide interface.
+
+00:02:28.058 --> 00:02:30.328
+A capacitor stores charge
+when a voltage is applied.
+
+00:02:30.584 --> 00:02:33.174
+If one plate is a sheet of
+electrons in a material,
+
+00:02:33.504 --> 00:02:35.874
+the voltage adds or removes electrons.
+
+00:02:36.200 --> 00:02:38.230
+The metal plate is then called a gate.
+
+00:02:38.496 --> 00:02:42.966
+Cold SrTiO₃ has a dielectric
+constant near twenty thousand,
+
+00:02:43.016 --> 00:02:45.906
+so a back gate can switch
+an interface on and off.
+
+00:02:46.771 --> 00:02:50.181
+In a field, electrons drift at
+a speed set by their mobility.
+
+00:02:50.587 --> 00:02:55.277
+A magnetic field pushes moving electrons
+to one edge, which makes the Hall voltage.
+
+00:02:55.568 --> 00:02:57.238
+That voltage counts the carriers,
+
+00:02:57.568 --> 00:03:00.198
+and nearly every experiment
+in the papers uses it.
+
+00:03:00.904 --> 00:03:04.934
+Heat flows from hot to cold at a
+rate set by the thermal conductivity.
+
+00:03:05.185 --> 00:03:07.795
+In insulators, vibrations carry the heat,
+
+00:03:08.025 --> 00:03:10.355
+so the mean free path
+between collisions matters.
+
+00:03:10.666 --> 00:03:13.896
+In silicon that path is
+about 40 nanometres or more.
+
+00:03:14.092 --> 00:03:16.402
+Devices smaller than
+this break Fourier's law.
+
+00:03:17.238 --> 00:03:20.348
+Light arrives in packets,
+each with energy h f.
+
+00:03:20.359 --> 00:03:23.789
+Particles behave as waves,
+with a wavelength of h over p.
+
+00:03:24.005 --> 00:03:28.718
+An electron with one electron volt of
+energy has a wavelength of about 1.2
+
+00:03:28.718 --> 00:03:29.755
+nanometres.
+
+00:03:30.081 --> 00:03:33.851
+The Schrödinger equation for these
+waves allows only special energies.
+
+00:03:34.838 --> 00:03:38.728
+Trap a particle between two walls,
+and only whole half wavelengths fit.
+
+00:03:38.939 --> 00:03:40.849
+The energy levels grow as n squared.
+
+00:03:41.160 --> 00:03:43.850
+In a five nanometre layer
+of gallium arsenide,
+
+00:03:43.960 --> 00:03:49.590
+the first gap is 0.67 electron volts,
+far above room temperature heat.
+
+00:03:49.786 --> 00:03:53.656
+So motion across the layer freezes,
+while motion along it stays free.
+
+00:03:53.852 --> 00:03:56.722
+That flat sheet is a two
+dimensional electron gas.
+
+00:03:57.638 --> 00:04:01.968
+Real walls have a finite height, so the
+wavefunction leaks a little way into them.
+
+00:04:02.079 --> 00:04:06.089
+At an interface, an electric field
+presses electrons against a wall,
+
+00:04:06.159 --> 00:04:07.709
+making a triangular well.
+
+00:04:07.860 --> 00:04:11.370
+A stronger field squeezes the
+electrons closer to the interface.
+
+00:04:12.338 --> 00:04:17.128
+A quantum spring has evenly spaced
+energy levels, one ħω apart.
+
+00:04:17.294 --> 00:04:21.444
+In a crystal, one lump of vibration
+energy in one mode is a phonon.
+
+00:04:21.675 --> 00:04:25.505
+Even the lowest level keeps some energy,
+so atoms never stop moving.
+
+00:04:26.404 --> 00:04:27.874
+In SrTiO₃,
+
+00:04:27.984 --> 00:04:32.414
+titanium gives away four electrons
+and keeps empty 3d orbitals.
+
+00:04:32.555 --> 00:04:35.825
+Extra electrons at an interface
+go into those orbitals.
+
+00:04:35.966 --> 00:04:38.196
+Each orbital holds two electrons at most,
+
+00:04:38.566 --> 00:04:40.456
+one spin up and one spin down.
+
+00:04:40.667 --> 00:04:42.307
+Many electrons together are hard,
+
+00:04:42.307 --> 00:04:46.337
+because the wavefunction needs three
+coordinates for every electron.
+
+00:04:47.171 --> 00:04:50.121
+Temperature sets a typical
+thermal energy, kT.
+
+00:04:50.362 --> 00:04:54.392
+At room temperature it
+is 0.026 electron volts.
+
+00:04:54.688 --> 00:04:58.578
+A state higher by delta E is less
+likely by the Boltzmann factor.
+
+00:04:58.924 --> 00:05:00.694
+Cooling shuts things off exponentially,
+
+00:05:01.284 --> 00:05:03.894
+so many effects appear
+only near absolute zero.
+
+00:05:04.804 --> 00:05:08.994
+In a flat sheet, the allowed electron
+waves form a grid of dots in k space.
+
+00:05:09.355 --> 00:05:11.585
+Counting the dots gives
+the density of states,
+
+00:05:11.895 --> 00:05:13.625
+which is constant in two dimensions.
+
+00:05:13.996 --> 00:05:17.846
+Electrons fill the states up to the
+Fermi energy, and a gate tunes it.
+
+00:05:17.917 --> 00:05:21.767
+Only electrons near the Fermi
+energy can conduct or take up heat.
+
+00:05:22.638 --> 00:05:26.268
+When cold, only phonons with
+energy below kT are awake.
+
+00:05:26.539 --> 00:05:30.569
+Counting them gives a heat capacity
+that grows as T cubed in 3D,
+
+00:05:30.639 --> 00:05:33.189
+T squared in 2D and T in 1D.
+
+00:05:33.360 --> 00:05:38.510
+A membrane 100 nanometres thick acts
+2D for phonons below about one kelvin.
+
+00:05:39.564 --> 00:05:45.534
+SrTiO₃ has the perovskite structure,
+a cube 0.39 nanometres wide.
+
+00:05:45.850 --> 00:05:50.440
+Strontium sits at the corners, titanium
+at the centre, and oxygen on the faces.
+
+00:05:50.786 --> 00:05:51.896
+Seen from the side,
+
+00:05:52.066 --> 00:05:56.916
+it is a stack of alternating
+SrO and TiO₂ layers.
+
+00:05:57.207 --> 00:06:00.697
+LaAlO₃ grows on top,
+stretched by about three percent.
+
+00:06:01.938 --> 00:06:05.738
+An electron wave with a wavelength
+of twice the atom spacing reflects
+
+00:06:05.738 --> 00:06:06.608
+completely.
+
+00:06:06.929 --> 00:06:10.799
+Its two standing waves have different
+energies, so an energy gap opens.
+
+00:06:11.085 --> 00:06:15.175
+From the atom side, hopping between
+neighbours spreads each level into a band.
+
+00:06:15.431 --> 00:06:17.201
+A steep band means light electrons,
+
+00:06:17.651 --> 00:06:19.301
+and a flat band means heavy ones.
+
+00:06:20.204 --> 00:06:22.054
+A partly filled band makes a metal.
+
+00:06:22.245 --> 00:06:25.795
+Full and empty bands with a big
+gap between them make an insulator.
+
+00:06:26.151 --> 00:06:29.841
+SrTiO₃ has a gap of 3.2 electron volts,
+
+00:06:30.151 --> 00:06:32.961
+and LaAlO₃ about 5.6.
+
+00:06:33.904 --> 00:06:35.454
+Inside its oxygen cage,
+
+00:06:36.044 --> 00:06:38.334
+titanium's d orbitals
+split into two groups.
+
+00:06:38.610 --> 00:06:41.180
+The three that point between
+the oxygens sit lowest.
+
+00:06:41.456 --> 00:06:45.726
+The dxy orbital lies flat, light
+within the plane and heavy across it.
+
+00:06:45.857 --> 00:06:49.187
+So dxy electrons sit lowest
+and hug the interface.
+
+00:06:50.171 --> 00:06:53.561
+A missing oxygen ion leaves
+up to two electrons behind,
+
+00:06:53.831 --> 00:06:56.081
+so oxygen vacancies dope the crystal.
+
+00:06:56.362 --> 00:07:00.052
+Where two materials meet, charge
+flows until their Fermi levels match.
+
+00:07:00.363 --> 00:07:04.133
+The bands bend, and electrons collect
+in a narrow well at the interface.
+
+00:07:05.104 --> 00:07:08.854
+With two kinds of atom in each cell,
+vibrations split into two branches.
+
+00:07:09.275 --> 00:07:12.625
+In the acoustic branch,
+neighbours move together, as in sound.
+
+00:07:12.861 --> 00:07:16.431
+In the optical branch they move
+against each other, at high frequency.
+
+00:07:16.797 --> 00:07:19.067
+Between the branches lies a phonon gap.
+
+00:07:19.971 --> 00:07:23.521
+Real bonds are slightly anharmonic,
+so phonons can collide.
+
+00:07:23.787 --> 00:07:26.217
+Normal collisions keep
+heat flowing forward.
+
+00:07:26.423 --> 00:07:29.893
+Umklapp collisions turn it backward
+and create thermal resistance.
+
+00:07:30.359 --> 00:07:33.629
+So a pure crystal's conductivity
+rises from the cold, peaks,
+
+00:07:33.839 --> 00:07:35.569
+then falls as one over T.
+
+00:07:36.438 --> 00:07:41.008
+In SrTiO₃, some vibrations get
+softer as the crystal cools.
+
+00:07:41.094 --> 00:07:45.784
+A rotation of the oxygen cages
+freezes in at about 105 kelvin.
+
+00:07:46.150 --> 00:07:49.440
+A polar mode never freezes,
+because of zero point motion.
+
+00:07:49.641 --> 00:07:54.891
+As it softens, the dielectric constant
+climbs from 300 to above ten thousand.
+
+00:07:55.704 --> 00:08:00.334
+In a ferroelectric, the titanium ion
+sits slightly off centre, up or down.
+
+00:08:00.505 --> 00:08:04.015
+Every cell gets a dipole,
+and a strong field can flip them all.
+
+00:08:04.156 --> 00:08:07.786
+The surface charge is about
+10¹⁴ per square centimetre,
+
+00:08:07.996 --> 00:08:10.486
+as large as an oxide electron gas.
+
+00:08:10.772 --> 00:08:11.782
+Flip the polarization,
+
+00:08:12.272 --> 00:08:15.362
+and an electron gas at the
+interface switches on or off.
+
+00:08:16.138 --> 00:08:20.248
+In a ferromagnet, electron spins line
+up because of the exchange interaction.
+
+00:08:20.749 --> 00:08:23.599
+The spin up and spin down
+bands shift apart in energy.
+
+00:08:23.830 --> 00:08:26.080
+A current from such a
+metal is spin polarized,
+
+00:08:26.570 --> 00:08:27.920
+the basis of spintronics.
+
+00:08:28.904 --> 00:08:32.274
+Below a critical temperature,
+some materials lose all resistance.
+
+00:08:32.750 --> 00:08:36.280
+Electrons attract each other through
+the lattice and form Cooper pairs.
+
+00:08:36.611 --> 00:08:40.011
+The oxide interface superconducts
+below about 0.2 kelvin,
+
+00:08:40.011 --> 00:08:42.521
+in a sheet ten nanometres thick.
+
+00:08:42.747 --> 00:08:45.917
+A back gate tunes it between
+superconductor and insulator.
+
+00:08:46.838 --> 00:08:49.528
+When electrons crowd
+into narrow d orbitals,
+
+00:08:49.658 --> 00:08:51.628
+their repulsion U competes with hopping.
+
+00:08:51.909 --> 00:08:55.259
+If U beats the band width,
+electrons freeze one per atom,
+
+00:08:55.449 --> 00:08:56.839
+which makes a Mott insulator.
+
+00:08:57.080 --> 00:09:01.070
+LaTiO₃ is one,
+and band theory alone cannot predict it.
+
+00:09:01.871 --> 00:09:05.601
+A sheet is fully two dimensional when
+only the first subband is filled.
+
+00:09:05.867 --> 00:09:09.717
+The oxide interface fills more than one,
+so it is quasi two dimensional.
+
+00:09:10.018 --> 00:09:12.748
+Electron gases can come from doping,
+polarization,
+
+00:09:13.338 --> 00:09:15.988
+a gate, a polar step or one doped layer.
+
+00:09:17.504 --> 00:09:20.254
+Scattering rates add,
+so the lowest mobility wins.
+
+00:09:20.560 --> 00:09:23.450
+Clean gallium arsenide
+reaches over ten million.
+
+00:09:23.756 --> 00:09:26.496
+The oxide interface reaches
+up to ten thousand when cold,
+
+00:09:26.496 --> 00:09:28.806
+and only a few at room temperature.
+
+00:09:29.771 --> 00:09:32.521
+A magnetic field bends
+electrons into circles.
+
+00:09:32.772 --> 00:09:36.982
+Quantum mechanics turns their energies
+into evenly spaced Landau levels.
+
+00:09:37.213 --> 00:09:38.123
+In a clean sheet,
+
+00:09:38.233 --> 00:09:43.783
+the Hall resistance locks to 25,813
+ohms divided by a whole number.
+
+00:09:43.979 --> 00:09:46.849
+These plateaus are precise
+enough to define the ohm.
+
+00:09:47.504 --> 00:09:51.354
+In a narrow wire without scattering,
+the electron speed cancels out.
+
+00:09:51.525 --> 00:09:56.815
+Each channel conducts two e squared
+over h, about one over 12.9 kilohms.
+
+00:09:56.931 --> 00:10:01.541
+At the oxide interface, a microscope
+tip can draw such wires and erase them.
+
+00:10:01.672 --> 00:10:04.882
+One sketched transistor
+switched at over one gigahertz.
+
+00:10:06.484 --> 00:10:11.374
+In 2004, Ohtomo and Hwang
+grew LaAlO₃ on SrTiO₃.
+
+00:10:11.550 --> 00:10:14.000
+The boundary between the
+two insulators conducted.
+
+00:10:14.406 --> 00:10:16.336
+Most of the reference list asks why.
+
+00:10:17.204 --> 00:10:19.374
+Count the charge in each atomic layer.
+
+00:10:19.575 --> 00:10:22.625
+In SrTiO₃, both kinds
+of layer are neutral.
+
+00:10:22.946 --> 00:10:27.616
+In LaAlO₃, the layers alternate
+between plus one and minus one.
+
+00:10:27.772 --> 00:10:31.442
+Starting on titanium dioxide
+gives a conducting interface,
+
+00:10:31.792 --> 00:10:35.422
+and one extra layer of strontium
+oxide makes it insulate.
+
+00:10:36.238 --> 00:10:39.388
+Those charged layers act like
+the sheets from chapter three.
+
+00:10:39.524 --> 00:10:41.494
+The field is on in half of every cell,
+
+00:10:41.724 --> 00:10:44.474
+so the voltage climbs by
+about one volt per cell.
+
+00:10:44.635 --> 00:10:49.345
+Five cells would build almost five volts,
+and that runaway is the polar catastrophe.
+
+00:10:50.471 --> 00:10:55.341
+After about 3.3 cells,
+the build up passes the gap of SrTiO₃.
+
+00:10:55.517 --> 00:10:59.467
+Half an electron per cell then moves
+from the surface down to the interface.
+
+00:10:59.733 --> 00:11:01.143
+The voltage stops climbing.
+
+00:11:01.434 --> 00:11:06.164
+This predicts 3.3 times 10¹⁴
+electrons per square centimetre.
+
+00:11:07.004 --> 00:11:08.514
+Grown one cell at a time,
+
+00:11:08.584 --> 00:11:11.894
+the interface insulates up to
+three cells and conducts at four.
+
+00:11:12.105 --> 00:11:15.835
+Diluting the layer charge raised that
+critical thickness, as predicted.
+
+00:11:16.191 --> 00:11:19.941
+Hall measurements find about thirty
+times fewer electrons than predicted,
+
+00:11:20.291 --> 00:11:22.261
+and where the rest go is still debated.
+
+00:11:23.204 --> 00:11:26.234
+Oxygen vacancies are a
+rival source of electrons.
+
+00:11:26.500 --> 00:11:30.070
+Samples grown in low oxygen
+conduct deep into the substrate.
+
+00:11:30.296 --> 00:11:31.686
+After annealing in oxygen,
+
+00:11:32.036 --> 00:11:34.866
+conduction shrinks to a few
+nanometres at the interface.
+
+00:11:35.102 --> 00:11:37.232
+So always check how a sample was grown.
+
+00:11:38.171 --> 00:11:40.641
+The electron gas is a
+few nanometres thick.
+
+00:11:40.862 --> 00:11:45.612
+It superconducts, shows magnetic effects,
+and makes rewritable nanoscale devices.
+
+00:11:45.938 --> 00:11:49.568
+A fast transistor in such a thin
+sheet must also shed its heat,
+
+00:11:49.658 --> 00:11:51.328
+and phonons carry it away.
+
+00:11:52.171 --> 00:11:56.181
+In a large sample, phonons collide
+many times, and heat diffuses.
+
+00:11:56.427 --> 00:11:59.857
+In a sample shorter than the mean
+free path, they fly straight across.
+
+00:12:00.143 --> 00:12:03.493
+Below about one kelvin,
+mean free paths reach micrometres.
+
+00:12:04.404 --> 00:12:07.434
+Join a hot and a cold
+reservoir with a narrow wire.
+
+00:12:07.680 --> 00:12:10.610
+As with electrons,
+the phonon speed cancels out.
+
+00:12:10.791 --> 00:12:15.161
+Every perfect channel carries the same
+heat, the quantum of thermal conductance.
+
+00:12:15.317 --> 00:12:18.407
+At one kelvin it is about
+one picowatt per kelvin.
+
+00:12:19.338 --> 00:12:22.908
+Theory predicted four channels per
+wire at the lowest temperatures.
+
+00:12:23.339 --> 00:12:27.859
+Schwab and colleagues hung a tiny island
+from four bridges and cooled it below one
+
+00:12:27.859 --> 00:12:28.569
+kelvin.
+
+00:12:28.700 --> 00:12:31.130
+Its conductance levelled
+off at sixteen quanta,
+
+00:12:31.600 --> 00:12:33.370
+four bridges times four channels.
+
+00:12:34.304 --> 00:12:36.574
+A thermal diode lets heat flow one way.
+
+00:12:36.745 --> 00:12:39.895
+Two joined chains pass heat
+only at frequencies they share,
+
+00:12:40.185 --> 00:12:41.935
+and temperature shifts those frequencies.
+
+00:12:42.361 --> 00:12:45.281
+A real one, made from
+unevenly loaded nanotubes,
+
+00:12:45.281 --> 00:12:47.851
+passed heat a few percent better one way.
+
+00:12:48.671 --> 00:12:53.641
+A superlattice stacks thin layers of
+gallium arsenide and aluminium arsenide.
+
+00:12:53.707 --> 00:12:55.737
+If each interface scattered phonons,
+
+00:12:56.287 --> 00:12:58.577
+conductivity would stay
+flat as the stack grows.
+
+00:12:58.853 --> 00:13:01.283
+Measured conductivity
+rose with total thickness,
+
+00:13:01.473 --> 00:13:03.923
+so the phonons crossed as coherent waves.
+
+00:13:04.904 --> 00:13:08.814
+Every interface causes a temperature jump,
+the thermal boundary resistance.
+
+00:13:09.290 --> 00:13:13.800
+A typical one resists heat as
+much as 150 nanometres of silicon.
+
+00:13:14.126 --> 00:13:17.716
+Simple models treat the boundary
+as a smooth or a rough mismatch.
+
+00:13:18.804 --> 00:13:22.894
+The atomistic Green's function method
+starts from every atom's mass and springs.
+
+00:13:23.290 --> 00:13:26.580
+It asks how the atoms respond
+when shaken at each frequency.
+
+00:13:26.931 --> 00:13:30.561
+From that it reads off the transmission,
+and the heat conductance follows.
+
+00:13:31.504 --> 00:13:34.454
+Storing the full wavefunction
+of a crystal is impossible.
+
+00:13:34.895 --> 00:13:37.925
+Density functional theory works
+with the electron density,
+
+00:13:37.995 --> 00:13:40.045
+one function of three coordinates.
+
+00:13:41.381 --> 00:13:45.171
+In 1964, Hohenberg and Kohn proved
+that the density fixes everything.
+
+00:13:46.071 --> 00:13:50.641
+Kohn and Sham imagined non interacting
+electrons with the same density.
+
+00:13:50.822 --> 00:13:55.292
+The energy splits into four parts, and
+only exchange and correlation are unknown.
+
+00:13:55.658 --> 00:14:00.628
+Approximations called LDA,
+GGA and DFT+U fill that gap.
+
+00:14:01.438 --> 00:14:03.348
+The calculation runs in a loop.
+
+00:14:03.549 --> 00:14:07.139
+Guess a density, build the potential,
+and solve for the orbitals.
+
+00:14:07.250 --> 00:14:09.900
+Fill them to get a new density,
+and go round again.
+
+00:14:10.096 --> 00:14:13.086
+When nothing changes,
+the result is self consistent.
+
+00:14:14.038 --> 00:14:17.308
+Orbitals are built from plane waves,
+up to a cutoff energy.
+
+00:14:17.554 --> 00:14:21.204
+Pseudopotentials and PAW
+smooth out the core electrons.
+
+00:14:21.470 --> 00:14:24.720
+Averages over the Brillouin
+zone use a grid of k points,
+
+00:14:25.050 --> 00:14:26.760
+such as eight by eight by one.
+
+00:14:26.921 --> 00:14:29.591
+An interface is modelled
+by a tall supercell,
+
+00:14:29.721 --> 00:14:34.551
+such as one LaAlO₃ cell
+on 23 SrTiO₃ cells.
+
+00:14:35.471 --> 00:14:39.421
+A layer projected density of states
+shows where the electron gas sits.
+
+00:14:39.682 --> 00:14:44.012
+Its weight is strongest in the first
+titanium layer and fades in deeper ones.
+
+00:14:44.218 --> 00:14:46.888
+Standard DFT underestimates gaps,
+
+00:14:47.138 --> 00:14:52.068
+giving about 2 electron volts
+for SrTiO₃ against 3.2 measured.
+
+00:14:52.971 --> 00:14:56.921
+Nudge each atom and recompute the forces,
+and you get the spring constants.
+
+00:14:57.322 --> 00:14:59.912
+Their eigenvalues give
+the phonon dispersion.
+
+00:15:00.193 --> 00:15:02.443
+Those springs feed the
+Green's function method.
+
+00:15:02.654 --> 00:15:06.554
+Together they predict both the electron
+gas and the heat flow at an oxide
+
+00:15:06.554 --> 00:15:07.464
+interface.
+
+00:15:08.371 --> 00:15:12.721
+Each step built on the one before, from
+springs and waves to bands and phonons.
+
+00:15:12.942 --> 00:15:18.302
+Charged layers in LaAlO₃ push electrons
+into a thin sheet at the boundary with
+
+00:15:18.302 --> 00:15:19.732
+SrTiO₃.
+
+00:15:19.893 --> 00:15:21.563
+Phonons carry its heat away,
+
+00:15:21.733 --> 00:15:25.103
+and density functional theory
+predicts both from the atoms up.
+

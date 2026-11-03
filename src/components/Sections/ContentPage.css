@@ -67,6 +67,37 @@
   text-wrap: pretty;
 }
 
+/* A figure beside the title (page.headArt: the research page's lattice). It takes the head's full
+   height and the paper to the right of the title's words: from just past them (--title-end, measured
+   from the text by ContentPage.jsx) to the content's right edge, so it can never reach the letters.
+   Where that leaves less than --art-want (windows over 1480px, whose content column stops growing
+   while the title's size still does) it borrows some of the window's margin past the column, up to
+   the page's own gutter from the window's edge. Out of the flow: it pushes nothing. Too narrow
+   still (never at this title's size, from 768px up), it is not drawn. Phones: further down. */
+.cpage__head--art {
+  position: relative;
+}
+
+.cpage__art {
+  --art-gap: clamp(20px, 2.6vw, 40px);
+  --art-want: 250px;
+  --art-start: calc(var(--title-end, 100%) + var(--art-gap));
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--art-start);
+  right: calc(-1 * clamp(0px, var(--art-start) + var(--art-want) - 100%, max(0px, (100vw - 1480px) / 2)));
+  container: cpage-art / inline-size;
+}
+
+@media (min-width: 768px) {
+  @container cpage-art (max-width: 119px) {
+    .cpage__art > * {
+      display: none;
+    }
+  }
+}
+
 /* figures */
 .cpage__stats {
   display: grid;
@@ -163,6 +194,27 @@
   text-wrap: balance;
 }
 
+/* a title with its site link beside it (entry.site.byTitle): one block at the title's size, the title
+   running inline in it and the link straight after its last word, on the title's baseline; balanced
+   with the link counted in, so a long title breaks evenly and the link drops to a line of its own
+   only when it has no room */
+.cpage__entry-name {
+  max-width: 46ch;
+  font-size: clamp(20px, 1.9vw, 27px);
+  line-height: 1.18;
+  text-wrap: balance;
+}
+
+.cpage__entry-name > .cpage__entry-title {
+  display: inline;
+}
+
+/* (doubled, to outrank .cpage__site's own margin further down) */
+.cpage__site.cpage__site--title {
+  display: inline;
+  margin: 0 0 0 14px;
+}
+
 .cpage__when {
   margin: 0;
   font-size: 13px;
@@ -177,6 +229,28 @@
   font-size: 15px;
   line-height: 1.45;
   color: var(--ink-soft, rgba(12, 12, 12, 0.62));
+}
+
+/* an org line that leads to the entry it names on another page (entry.orgTo): the same grey,
+   a quiet dotted underline, inked on hover */
+.cpage__org-link {
+  color: inherit;
+  text-decoration: underline dotted;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: color 0.2s ease;
+}
+
+.cpage__org-link:hover,
+.cpage__org-link:focus-visible {
+  color: var(--ink);
+  text-decoration-style: solid;
+  outline: none;
+}
+
+/* a linked-to entry (/page#id) lands clear of the fixed header */
+.cpage__entry[id] {
+  scroll-margin-top: calc(var(--header-h) + 24px);
 }
 
 .cpage__note {
@@ -273,6 +347,125 @@
 .cpage__links a {
   display: inline-block;
   padding: 4px 0;
+}
+
+/* an entry's own site (entry.site): underlined text, but weighted and ruled like a button, and on
+   hover the accent rises up from the underline to fill behind it, as a button would */
+.cpage__site {
+  margin: 22px 0 0;
+}
+
+.cpage__site a {
+  display: inline-block;
+  padding: 5px 6px 6px 4px;
+  margin-left: -4px;
+  border-radius: 3px;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 6px;
+  background: linear-gradient(var(--accent), var(--accent)) no-repeat left bottom / 100% 0;
+  transition:
+    background-size 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.2s ease,
+    text-decoration-color 0.2s ease;
+}
+
+/* an inline-block, so the underline stops at the words */
+.cpage__site-arrow {
+  display: inline-block;
+  margin-left: 7px;
+  font-weight: 400;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cpage__site a:hover,
+.cpage__site a:focus-visible {
+  background-size: 100% 100%;
+  color: var(--accent-ink);
+  text-decoration-color: transparent;
+  outline: none;
+}
+
+.cpage__site a:hover .cpage__site-arrow,
+.cpage__site a:focus-visible .cpage__site-arrow {
+  transform: translate(2px, -2px);
+}
+
+/* said to screen readers, not shown */
+.cpage__offscreen {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* A section whose entries carry their own asides (entry.aside; RowsSection in ContentPage.jsx): one
+   row per entry, each the section's own two columns, so an aside sits level with its entry and its
+   stickiness ends with that entry's row. No gap between rows: the entries' rules run on unbroken,
+   as in a plain section. */
+.cpage__section--rows {
+  display: block;
+}
+
+.cpage__row {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
+  column-gap: clamp(24px, 4vw, 64px);
+}
+
+/* a row without an aside has no left cell: its entry still keeps to the right column */
+.cpage__row-side {
+  grid-column: 1;
+  min-width: 0;
+}
+
+.cpage__row-body {
+  grid-column: 2;
+  min-width: 0;
+}
+
+/* the left cell stretches to its entry's height; what is in it stays in view while that entry
+   scrolls by, and leaves with it */
+.cpage__row-stick {
+  position: sticky;
+  top: calc(var(--header-h) + 24px);
+}
+
+/* an aside below the label (the first row) hangs where a section's own side items do; one on a later
+   row starts level with its entry's title */
+.cpage__row-stick > .entry-sticker {
+  width: clamp(100px, 10vw, 156px);
+  margin: 30px 0 0 clamp(4px, 2vw, 30px);
+}
+
+.cpage__row-stick > .entry-sticker:first-child {
+  margin-top: 34px;
+}
+
+.cpage__row-stick > .side-video:first-child {
+  margin-top: 26px;
+}
+
+/* the inference figure (InferenceGraphic.jsx): its frame's top level with its entry's title */
+.cpage__row-stick > .infer {
+  margin-top: 30px;
+}
+
+.cpage__row-stick > .infer:first-child {
+  margin-top: 26px;
+}
+
+/* (on phones an aside sticker is drawn inside its entry instead, floated into the text, and the
+   inference figure under the text, full width: .cpage__entry-figure, and the phones block below) */
+.cpage__entry-figure {
+  margin: 28px 0 0;
 }
 
 /* a plain list (certifications, skills) */
@@ -373,6 +566,73 @@
   .cpage__list-org {
     grid-column: 1 / -1;
     grid-row: 2;
+  }
+
+  /* rows: each aside just above its own entry, 24px off it like the label's side items */
+  .cpage__row {
+    grid-template-columns: 1fr;
+    row-gap: 24px;
+  }
+
+  .cpage__row-side,
+  .cpage__row-body {
+    grid-column: auto;
+  }
+
+  .cpage__row-stick {
+    position: static;
+  }
+
+  .cpage__row-stick > .side-video:first-child {
+    margin-top: 0;
+  }
+
+  /* a later row's aside (a video: a sticker goes into the text) belongs inside its entry's rule */
+  .cpage__row:not(:first-child) > .cpage__row-side {
+    padding-top: 26px;
+    border-top: 1px solid var(--rule, rgba(12, 12, 12, 0.14));
+  }
+
+  .cpage__row:not(:first-child) > .cpage__row-side + .cpage__row-body > .cpage__entry {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  /* one column: the sticker floats into the top right of the text, which wraps round it */
+  .cpage__entry-row::after {
+    content: '';
+    display: block;
+    clear: both;
+  }
+
+  .cpage__entry-row > .entry-sticker {
+    float: right;
+    width: clamp(72px, 22vw, 108px);
+    margin: 16px 4px 10px 18px;
+  }
+}
+
+/* The head art on phones (beside the title down to a tablet's 768px, whatever the sections do): the
+   title fills the width here, so the figure goes small into the paper above it, the top right corner
+   beside the kicker, from 10px under the header (the page's top padding is the header plus 13vh) to
+   just over the title's first line. No caption at this size (the figure is still labelled to screen
+   readers). */
+@media (max-width: 767px) {
+  .cpage__art {
+    top: calc(10px - 13vh);
+    bottom: auto;
+    left: auto;
+    right: 0;
+    width: clamp(84px, 22vw, 150px);
+    height: calc(13vh + 20px);
+  }
+
+  .cpage__art .lattice__canvas {
+    max-height: 100%;
+  }
+
+  .cpage__art .lattice__caption {
+    display: none;
   }
 }
 

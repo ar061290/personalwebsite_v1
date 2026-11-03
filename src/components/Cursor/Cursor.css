@@ -12,6 +12,26 @@ html.has-custom-cursor *::after {
   cursor: none !important;
 }
 
+/* A modal <dialog> (send a message, the video player) sits in the browser's top layer, above
+   anything a z-index can lift, the custom cursor included: inside one the native pointer comes
+   back, and the custom one steps aside so there are never two. */
+html.has-custom-cursor dialog,
+html.has-custom-cursor dialog * {
+  cursor: auto !important;
+}
+
+html.has-custom-cursor dialog :is(input:not([type='range']), textarea, [contenteditable]) {
+  cursor: text !important;
+}
+
+html.has-custom-cursor dialog :is(button, a, label, select, summary, [role='button'], input[type='range']) {
+  cursor: pointer !important;
+}
+
+html:has(dialog[open]) .cursor {
+  opacity: 0;
+}
+
 .cursor {
   /* Reference: text-xs = clamp(1rem, .933rem + .1852vw, 1.2rem) at a 10px root. */
   --cursor-fs: clamp(10px, 9.333px + 0.1852vw, 12px);

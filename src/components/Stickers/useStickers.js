@@ -15,7 +15,7 @@ const MAX_STICKERS = 16
 const RECENT_MEMORY = 4 // a sticker is not repeated within the last four picks
 const TAP_SLOP = 6 // px the pointer may travel between press and release
 const IGNORE_SELECTOR =
-  'a, button, header, input, textarea, select, label, [contenteditable], [data-no-sticker]'
+  'a, button, .site-header, input, textarea, select, label, [contenteditable], [data-no-sticker]'
 
 const random = (min, max) => Math.random() * (max - min) + min
 

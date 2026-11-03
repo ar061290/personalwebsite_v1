@@ -41,6 +41,13 @@ const KEY = 'aadi-music' // { on, t }: whether the visitor wants it, and where i
 // it start only inside a touchend or a click, so all of these are listened for.
 const GESTURES = ['pointerup', 'touchend', 'click', 'keydown']
 
+// Another player on the page (the research page's video, Sections/VideoOverlay.jsx) holds the music
+// while it is open: holdMusic(true) fades it out and pauses it without changing whether the visitor
+// wants it, and holdMusic(false) brings it back (if it is still wanted). Nothing tries to start it
+// while it is held.
+const HOLD_EVENT = 'aadi:music-hold'
+export const holdMusic = (on) => window.dispatchEvent(new CustomEvent(HOLD_EVENT, { detail: Boolean(on) }))
+
 const read = () => {
   try {
     return JSON.parse(sessionStorage.getItem(KEY)) ?? {}
@@ -94,6 +101,7 @@ export function setupMusic({ button, reduced = false }) {
   let multiTouch = false // a touch of two or more fingers is under way (or just ended)
   let everPlayed = false // played on this page at least once: the browser then sends media keys to its media session
   let moving = false // fading out to jump to a new point for a new page (reposition)
+  let held = false // another player on the page is open: the music waits for it (holdMusic)
   const session = 'mediaSession' in navigator ? navigator.mediaSession : null
   const saveData = navigator.connection?.saveData === true // the visitor's browser asks to save data
   const last = read().t // where the previous page had got to, to start well away from it
@@ -178,6 +186,11 @@ export function setupMusic({ button, reduced = false }) {
 
   const play = () => {
     if (!audio) return
+    // held by another player: it starts when that lets go (still wanted, it shows as on, not playing)
+    if (held) {
+      setUi('paused')
+      return
+    }
     if (!audio.paused) {
       // turned back on while still fading out: fade back in rather than pause at the end of it (or,
       // if it is still finding its place, leave that to 'playing')
@@ -215,8 +228,9 @@ export function setupMusic({ button, reduced = false }) {
       blocked = false
       forgetGesture()
       // playing although it is off (resumed by the browser or the phone after it paused it, or after
-      // a pause from outside): stopped, silently, so the button and what is heard agree
-      if (!wanted) {
+      // a pause from outside), or while another player holds it (a start already under way when the
+      // hold came): stopped, silently, so the button and what is heard agree
+      if (!wanted || held) {
         fade?.kill()
         level.v = 0
         audio.volume = 0
@@ -397,6 +411,34 @@ export function setupMusic({ button, reduced = false }) {
     })
   }
 
+  // ---- held by another player (holdMusic) ----
+  // On hold: faded out and paused, as a pause of this page's own (so it stays wanted). Let go: back on
+  // if it is still wanted and the browser had let it play (if it is still waiting for the visitor's
+  // first tap, it goes on waiting for one).
+  const onHold = (e) => {
+    const on = Boolean(e.detail)
+    if (on === held) return
+    held = on
+    if (held) {
+      moving = false
+      if (!audio || audio.paused) return
+      // not heard yet, or in a hidden tab (no frames to fade in): paused at once
+      if (level.v <= 0 || document.hidden) {
+        fade?.kill()
+        level.v = 0
+        audio.volume = 0
+        halt()
+        return
+      }
+      fadeTo(0, 0.4, () => {
+        if (held) halt()
+      })
+      return
+    }
+    if (wanted && !blocked && audio && !document.hidden) play()
+  }
+  window.addEventListener(HOLD_EVENT, onHold)
+
   // ---- the shortcuts ----
   // K, wherever the visitor is not typing (and not with Ctrl, Alt or Cmd: those are the browser's). A
   // radio button or a checkbox takes no text, so K there is the shortcut too.
@@ -575,6 +617,7 @@ export function setupMusic({ button, reduced = false }) {
     clearInterval(timer)
     if (wanted) remember()
     button.removeEventListener('click', toggle)
+    window.removeEventListener(HOLD_EVENT, onHold)
     document.removeEventListener('keydown', onKey)
     document.removeEventListener('touchstart', onTouchStart)
     document.removeEventListener('touchmove', onTouchMove)

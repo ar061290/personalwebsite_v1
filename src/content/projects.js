@@ -29,14 +29,6 @@ export default {
             'Coaches IGCSE Chemistry and built resources used by 3 teachers.',
           ],
         },
-        {
-          title: 'IBDP Collaborative Sciences Project: a street-food safety study',
-          org: 'Team lead',
-          points: [
-            'Led a multidisciplinary team across chemistry, biology and physics, and personally ran the heat-transfer modelling and thermodynamic analysis of real-world cooking and storage.',
-            '1st place: “Outstanding Exploration and Integration of a Significant Global Scientific Issue.”',
-          ],
-        },
       ],
     },
     {

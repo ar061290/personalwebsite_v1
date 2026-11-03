@@ -82,11 +82,13 @@ export default {
           title: 'IGCSE Physics (0625) School/Grade Topper',
           org: 'Cambridge Assessment International Education (CAIE)',
           when: '2025',
+          view: drive('1l2CxWJNGGJywVoTOzk2RQJbdDeX-4zLd'),
         },
         {
           title: 'Distinction in the Cambridge International Certificate of Education (ICE)',
           org: 'Cambridge Assessment International Education',
           when: '2025',
+          view: drive('16o3Bm7csKNQgvPR3qvVoC5bdFEdjrskj'),
         },
         {
           title: 'Bronze Award',
@@ -97,16 +99,19 @@ export default {
         {
           title: 'First Place, Outstanding Exploration and Integration of a Significant Global Scientific Issue',
           org: 'IBDP Collaborative Science Project',
+          orgTo: '/research#csp',
           when: '2026',
           view: drive('1ZurwY_YKEToRxK-LnsjE77KpYTnsqfRB'),
         },
         {
           title: 'Venture and Tech Summer Program (VTSP)',
           when: '2026',
+          view: drive('1RlYYqZxz3heFQgAbLyN90etb0w2UHGLg'),
         },
         {
           title: 'Summer Science Program (SSP)',
           when: '2026',
+          view: drive('1-JKl4E0QCIq7LCCX2QEknmdYYM4Oda0U'),
         },
       ],
     },

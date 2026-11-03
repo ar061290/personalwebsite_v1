@@ -1,6 +1,10 @@
 // What hangs under a section's label in the left column of a content page:
-// logo stickers (die-cut, popped on when they scroll into view) and an automatic
-// photo slideshow (no controls: it cross-fades on its own while in view).
+// logo stickers (die-cut, popped on when they scroll into view), an automatic
+// photo slideshow (no controls: it cross-fades on its own while in view) and a pair of
+// reel prints (ReelCards: portrait stills that open their reels in a new tab, with a
+// pencilled note pointing at them). (The video card that can hang there too is
+// VideoOverlay.jsx.) Also the die-cut sticker an entry can hang beside itself (EntrySticker, an
+// entry.aside: level with its entry in the left column, or in the corner of its text on phones).
 import { useEffect, useRef, useState } from 'react'
 import './SectionSide.css'
 
@@ -33,6 +37,89 @@ export function LogoStickers({ items }) {
         </li>
       ))}
     </ul>
+  )
+}
+
+/**
+ * One die-cut sticker stuck beside an entry (ContentPage's entry.aside.sticker), popped on the first time
+ * it comes into view, like the logo stickers. The art carries its own white vinyl margin; the same
+ * hard white shadows as theirs tidy its edge.
+ */
+export function EntrySticker({ sticker }) {
+  const ref = useRef(null)
+  const [shown, setShown] = useState(false)
+  useInView(ref, (v) => v && setShown(true))
+
+  return (
+    <figure ref={ref} className={`entry-sticker${shown ? ' is-in' : ''}`} style={{ '--tilt': `${sticker.tilt ?? 0}deg` }}>
+      <img src={sticker.src} alt={sticker.alt} draggable="false" loading="lazy" decoding="async" />
+    </figure>
+  )
+}
+
+/** 129 → "2:09" */
+const clock = (s) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`
+
+// the pencilled arrow: one loose stroke that swings out right and curls back down into the prints,
+// and a two-line head drawn along its last direction. pathLength 1, so CSS can draw it on.
+const ARROW_LINE = 'M5 6c11-4 27-3 35 6 8 9 4 21-4 29-3 3-6 6-8 10'
+const ARROW_HEAD = 'M26 42.5 28 51l8.5-4'
+
+/**
+ * The section's reels (section.reels, with section.reelsNote), as two portrait prints laid down
+ * side by side, a little tilted and overlapping like photos dropped on a desk. Each is a plain link
+ * that opens its reel in a new tab; the still is a frame from the middle of the reel. They settle
+ * in, and the note's arrow draws itself on, the first time they come into view.
+ */
+export function ReelCards({ reels, note }) {
+  const ref = useRef(null)
+  const [shown, setShown] = useState(false)
+  useInView(ref, (v) => v && setShown(true), 0.2)
+
+  return (
+    <div ref={ref} className={`side-reels${shown ? ' is-in' : ''}`}>
+      {note && (
+        <p className="side-reels__note">
+          {note}
+          <svg className="side-reels__arrow" viewBox="0 0 48 56" aria-hidden="true" focusable="false">
+            <path d={ARROW_LINE} pathLength="1" />
+            <path className="side-reels__arrow-head" d={ARROW_HEAD} pathLength="1" />
+          </svg>
+        </p>
+      )}
+      <ul className="side-reels__cards">
+        {reels.map((r, i) => (
+          <li key={r.href} className="side-reels__item" style={{ '--tilt': `${i % 2 ? 3.5 : -4}deg`, '--n': i }}>
+            <a className="side-reel" href={r.href} target="_blank" rel="noopener noreferrer" data-cursor="watch">
+              <span className="side-reel__print">
+                <span className="side-reel__frame">
+                  <img src={r.thumb} alt={r.alt} draggable="false" loading="lazy" decoding="async" />
+                  <span className="side-reel__mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="12" height="12" focusable="false">
+                      <path d="M7 4.5v15a.8.8 0 0 0 1.2.7l12-7.5a.8.8 0 0 0 0-1.4l-12-7.5A.8.8 0 0 0 7 4.5Z" fill="currentColor" />
+                    </svg>
+                  </span>
+                  {r.length ? (
+                    <span className="side-reel__length" aria-hidden="true">
+                      {clock(r.length)}
+                    </span>
+                  ) : null}
+                </span>
+                <span className="side-reel__caption">
+                  {r.label}
+                  {/* a word joiner: the arrow never wraps onto a line of its own */}
+                  {'⁠'}
+                  <span className="side-reel__arrow" aria-hidden="true">
+                    ↗
+                  </span>
+                </span>
+                <span className="side-reel__offscreen"> (instagram reel, opens in a new tab)</span>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
   )
 }
 

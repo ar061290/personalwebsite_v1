@@ -1,9 +1,14 @@
 /* The visitor sign wall (SignWall.jsx). As tall as the footer above it (the footer sets
    --footer-h), full width. The page's paper shows through: light paper in light, black paper
-   in dark; the paint keeps its colours in both. --sign-wall-bg overrides the background. */
+   in dark; the paint keeps its colours in both. --sign-wall-bg overrides the background.
+   Once most of it is in view, wall.js pans it home by itself (--sw-pan, CSS px; 0 is the final
+   view) and marks it [data-resting] once it is there and takes paint. The visitor can browse
+   along the strip themselves too (a sideways swipe, the two browse buttons, a finger away from
+   home); the same --sw-pan and [data-resting] follow. */
 .sign-wall {
   --sign-wall-hint: #e2e2de;
   --sign-wall-hint-shade: #d3d3d1;
+  --sw-pan: 0px;
 
   position: relative;
   width: 100%;
@@ -33,6 +38,30 @@ html[data-theme='dark'] .sign-wall {
   touch-action: none; /* drawing, not scrolling, while the finger is on the wall */
 }
 
+/* The regulars, composited at the pan by wall.js; never in the way of a touch. */
+.sign-wall__canvas--regulars {
+  pointer-events: none;
+}
+
+/* The visitor's own paint, labels and popup live in the final view and ride the pan. */
+.sign-wall__canvas--yours,
+.sign-wall__labels {
+  transform: translate3d(var(--sw-pan), 0, 0);
+}
+
+.sign-wall__popup,
+.sign-wall__toast {
+  translate: var(--sw-pan) 0;
+}
+
+/* Away from home (panning, or browsed along): a finger scrolls the page up and down instead of
+   painting, and a sideways one is left to wall.js, which drags the strip with it. On the whole
+   wall, since the visitor's canvas rides the pan and no longer covers all of it. */
+.sign-wall:not([data-resting]),
+.sign-wall:not([data-resting]) .sign-wall__canvas--yours {
+  touch-action: pan-y pinch-zoom;
+}
+
 /* The pen's own "Drag mouse to paint.", embossed into the paper under the paint. */
 .sign-wall__hint {
   position: absolute;
@@ -48,6 +77,14 @@ html[data-theme='dark'] .sign-wall {
   text-align: center;
   text-shadow: 0 -1px 0 var(--sign-wall-hint-shade);
   pointer-events: none;
+  transition: opacity 0.6s ease 0.1s;
+}
+
+/* The hint waits for the final view (it belongs to the open middle). */
+.sign-wall:not([data-resting]) .sign-wall__hint {
+  opacity: 0;
+  transition-duration: 0.15s;
+  transition-delay: 0s;
 }
 
 .sign-wall__hint-touch {
@@ -180,6 +217,151 @@ html[data-theme='dark'] .sign-wall {
   color: var(--accent-ink);
   background: var(--accent);
   border-color: var(--accent);
+}
+
+/* ---- browsing the strip ----
+   "← more signatures" at the left edge (home, once the auto-pan is over, and along the way
+   until the far left end), "back to sign →" at the right edge whenever browsed away. The paper
+   behind them, so they read over the paint; they stay put while the strip moves under them. */
+.sign-wall__nav {
+  position: absolute;
+  top: 50%;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  cursor: pointer;
+  translate: 0 -50%;
+  /* hidden: out of sight and out of reach, fading out before it goes */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.25s ease,
+    visibility 0s linear 0.25s,
+    color 0.2s,
+    border-color 0.2s,
+    background-color 0.2s;
+}
+
+.sign-wall__nav--left {
+  left: clamp(16px, 3vw, 32px);
+}
+
+.sign-wall__nav--right {
+  right: clamp(16px, 3vw, 32px);
+}
+
+.sign-wall__nav.is-shown {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+.sign-wall__nav:focus-visible {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--bg);
+}
+
+/* (a finger's tap leaves a hover behind: only a real pointer inverts it) */
+@media (hover: hover) {
+  .sign-wall__nav:hover {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--bg);
+  }
+}
+
+.sign-wall__nav:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* A narrow wall's hint spans most of its width: the buttons go down to the corners instead. */
+@media (max-width: 720px) {
+  .sign-wall__nav {
+    top: auto;
+    bottom: 12px;
+    translate: none;
+  }
+}
+
+@media (pointer: coarse) {
+  .sign-wall__nav {
+    min-height: 36px;
+    padding: 8px 14px;
+    touch-action: manipulation;
+  }
+  /* the bottom-left corner is "hold to sign"'s: "more signatures" sits in the middle */
+  .sign-wall__nav--left {
+    top: auto;
+    bottom: 12px;
+    left: 50%;
+    translate: -50% 0;
+  }
+}
+
+/* ---- "hold to sign" (phones only, at home) ----
+   A finger on the wall browses and scrolls; it paints only while this is held, with a thumb,
+   while another finger draws. While held the wall is [data-signing] and stops the page
+   scrolling under the drawing finger. */
+.sign-wall__hold {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  z-index: 3;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.sign-wall__hold.is-held {
+  background: var(--ink);
+  color: var(--bg);
+  transform: scale(1.04);
+}
+
+@media (pointer: coarse) {
+  .sign-wall[data-resting] .sign-wall__hold {
+    display: inline-flex;
+  }
+  /* on a phone the wall scrolls like the page unless "hold to sign" is held */
+  .sign-wall__canvas {
+    touch-action: pan-y pinch-zoom;
+  }
+  .sign-wall[data-signing] .sign-wall__canvas {
+    touch-action: none;
+  }
 }
 
 /* ---- name & note ---- */
@@ -329,6 +511,10 @@ html[data-theme='dark'] .sign-wall__popup {
   .sign-wall__label,
   .sign-wall__popup {
     animation: none;
+  }
+  .sign-wall__hint,
+  .sign-wall__nav {
+    transition: none;
   }
   .sign-wall__toast {
     animation-timing-function: steps(1, end);

@@ -1,0 +1,443 @@
+/* The ML internship's figure (InferenceGraphic.jsx): the old site's "production inference path" card
+   redrawn as ink on the paper. No fill of its own (the paper shows through), a hairline frame, the
+   theme's tokens only (so dark mode is the same drawing in milk on black), the accent as a tint where
+   the old card lit something and as the dense chain's tokens. Text is Archivo, lowercase and quiet;
+   the mono is for the code and the token counts.
+
+   It is a size container: the parts below lay themselves out by the figure's own width (about
+   180–310px in the left column on desktops, the full text width under its entry on phones). */
+.infer {
+  container: infer / inline-size;
+  --infer-pad: 13px;
+  /* the accent, let down to a wash: the lit stage and the picked card (the music button's pink in
+     light, a cocoa-red in dark) */
+  --infer-tint: color-mix(in srgb, var(--accent) 14%, transparent);
+  /* a breath of ink: the code's sheet */
+  --infer-sheet: color-mix(in srgb, var(--ink) 4.5%, transparent);
+  --infer-mono: ui-monospace, 'SFMono-Regular', 'Cascadia Mono', Menlo, Consolas, monospace;
+  width: 100%;
+  margin: 0;
+  padding: 0 var(--infer-pad) var(--infer-pad);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  text-align: left;
+}
+
+/* the figure's name, on a strip ruled off from the rest, like the old card's header */
+.infer__title {
+  display: block;
+  margin: 0 calc(-1 * var(--infer-pad)) 14px;
+  padding: 10px var(--infer-pad) 9px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 12px;
+  line-height: 1.3;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  color: var(--ink-soft);
+}
+
+/* ── the path: four stages, each carrying the arrow after it, so a line only ever breaks after an
+   arrow and never starts with one ── */
+.infer__path {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.infer__stage {
+  display: flex;
+  align-items: center;
+}
+
+.infer__node {
+  padding: 3px 9px 4px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  font-size: 11.5px;
+  line-height: 1.25;
+  white-space: nowrap;
+  color: var(--ink-soft);
+}
+
+/* the vision model: where every experiment acted */
+.infer__node.is-lit {
+  border-color: var(--ink);
+  background: var(--infer-tint);
+  color: var(--ink);
+}
+
+.infer__arrow {
+  padding: 0 5px;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--ink-soft);
+}
+
+/* ── the three variables: cards, stacked in the column (number, name, and the value under the name),
+   one line each once there is room, three across once there is room for that ── */
+.infer__vars {
+  display: grid;
+  gap: 6px;
+  margin: 14px 0 0;
+}
+
+.infer__var {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: 2px 9px;
+  width: 100%;
+  margin: 0;
+  padding: 7px 10px 8px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.infer__var-num {
+  grid-row: 1 / span 2;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-soft);
+}
+
+.infer__var-name {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.005em;
+}
+
+.infer__var-value {
+  grid-column: 2;
+  font-size: 11.5px;
+  line-height: 1.3;
+  color: var(--ink-soft);
+}
+
+.infer__var:hover {
+  border-color: color-mix(in srgb, var(--ink) 45%, transparent);
+}
+
+/* picked: inked round, washed with the accent, its number and value in full ink */
+.infer__var[aria-pressed='true'] {
+  border-color: var(--ink);
+  background: var(--infer-tint);
+}
+
+.infer__var[aria-pressed='true'] .infer__var-num,
+.infer__var[aria-pressed='true'] .infer__var-value {
+  color: var(--ink);
+}
+
+.infer__var:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* what the picked variable is. Every caption shares the one cell; the hidden ones hold it at the
+   tallest one's height */
+.infer__caption {
+  display: grid;
+  margin: 10px 0 0;
+}
+
+.infer__caption > * {
+  grid-area: 1 / 1;
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+
+.infer__caption-sizer {
+  visibility: hidden;
+}
+
+.infer__caption-text {
+  color: var(--ink-soft);
+}
+
+/* each new caption rises in, the way the page's own lines do */
+.infer__caption-in {
+  display: block;
+  animation: infer-caption 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes infer-caption {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ── reward shaping: a sketch, so a dashed frame ── */
+.infer__reward {
+  margin: 14px 0 0;
+  padding: 10px 11px 11px;
+  border: 1px dashed color-mix(in srgb, var(--ink) 28%, transparent);
+  border-radius: 6px;
+}
+
+.infer__panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 4px 10px;
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: var(--ink-soft);
+}
+
+/* the panel's name takes the room and wraps; the tag keeps to the top right (dropping under the name
+   only where the name would be squeezed narrower than 9em) */
+.infer__panel-head > :first-child {
+  flex: 1 1 9em;
+  min-width: 0;
+}
+
+/* "illustrative": a small pencilled tag */
+.infer__flag {
+  padding: 0 6px 1px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  font-size: 10.5px;
+  line-height: 1.5;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  color: var(--ink-soft);
+}
+
+.infer__chain {
+  margin: 11px 0 0;
+}
+
+.infer__chain-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 0 5px;
+  font-size: 11px;
+  line-height: 1.3;
+  color: var(--ink-soft);
+}
+
+.infer__chain-count {
+  font-family: var(--infer-mono);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* the tokens: a row of cells across the full width, whatever their number */
+.infer__tokens {
+  display: flex;
+  gap: 2px;
+}
+
+.infer__token {
+  flex: 1 1 0;
+  height: 8px;
+  border-radius: 1px;
+  box-shadow: inset 0 0 0 1px var(--rule); /* a slot left unused: drawn, not filled */
+  opacity: 0.2;
+  transition: opacity 0.3s ease;
+  transition-delay: calc(var(--n) * 18ms);
+}
+
+.infer__token.is-used {
+  background: color-mix(in srgb, var(--ink) 40%, transparent);
+  box-shadow: none;
+}
+
+.infer__chain.is-dense .infer__token.is-used {
+  background: var(--accent);
+}
+
+.infer__reward.is-in .infer__token {
+  opacity: 1;
+}
+
+.infer__reward-note {
+  margin: 11px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+  text-wrap: pretty;
+}
+
+/* ── evaluate.py: on a sheet a breath darker than the paper (lighter, in dark), with a header that
+   nods at a window's three buttons ── */
+.infer__code {
+  margin: 14px 0 0;
+  border-radius: 6px;
+  background: var(--infer-sheet);
+  overflow: hidden;
+}
+
+/* the tag drops under the file's name, still at the right, when the column is too narrow for both */
+.infer__code-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin: 0;
+  padding: 6px 9px 6px 10px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+
+.infer__code-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.infer__code-dots span {
+  width: 6px;
+  height: 6px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  opacity: 0.7;
+}
+
+.infer__code-file {
+  font-family: var(--infer-mono);
+  color: var(--ink);
+}
+
+/* both tags keep to the right, on a line of their own too */
+.infer__flag {
+  margin-left: auto;
+}
+
+/* lines wrap rather than scroll: a wrapped line goes on two characters in from where it started */
+.infer__code-body {
+  margin: 0;
+  padding: 9px 10px 11px;
+  font-family: var(--infer-mono);
+  font-size: clamp(9.5px, 3.7cqi, 11px);
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: color-mix(in srgb, var(--ink) 88%, transparent);
+}
+
+.infer__code-body code {
+  font: inherit;
+}
+
+.infer__code-line {
+  display: block;
+  padding-left: calc(var(--in) * 4ch + 2ch);
+  text-indent: calc(-1 * (var(--in) * 4ch + 2ch));
+}
+
+.infer__code-comment {
+  color: var(--ink-soft);
+}
+
+.infer__code-kw {
+  font-weight: 700;
+}
+
+/* ── by the figure's width ── */
+
+/* the narrowest left column (windows just over the one-column breakpoint) */
+@container infer (max-width: 229px) {
+  .infer__node {
+    padding: 2px 7px 3px;
+    font-size: 10.5px;
+  }
+
+  .infer__arrow {
+    padding: 0 3px;
+  }
+
+  .infer__var {
+    padding: 7px 8px 8px;
+    column-gap: 7px;
+  }
+
+  .infer__var-name {
+    font-size: 12px;
+  }
+
+  .infer__reward {
+    padding: 9px 9px 10px;
+  }
+}
+
+/* phones (the container's width is inside the frame's padding): each card on one line, the value
+   at its right */
+@container infer (min-width: 310px) {
+  .infer__var {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .infer__var-num {
+    grid-row: auto;
+  }
+
+  .infer__var-value {
+    grid-column: auto;
+    text-align: right;
+  }
+}
+
+/* wide (a tablet's single column): the three cards side by side, as on the old card */
+@container infer (min-width: 540px) {
+  .infer__vars {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .infer__var {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    row-gap: 3px;
+    padding: 10px 12px 12px;
+  }
+
+  .infer__var-num,
+  .infer__var-value {
+    grid-row: auto;
+    grid-column: auto;
+    text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .infer__token {
+    opacity: 1;
+    transition: none;
+  }
+
+  .infer__caption-in {
+    animation: none;
+  }
+
+  .infer__var {
+    transition: none;
+  }
+}

@@ -1,0 +1,700 @@
+/* The explainer video (VideoOverlay.jsx): its card in the left column, and the player that opens
+   over the page. The card follows the theme; the player sits on its own dark veil in both themes,
+   so it keeps its own light-on-dark colours and borrows only the accent. */
+
+/* ── the card: a print of the cover, like the slideshow's, with a play mark and its caption ── */
+.side-video {
+  display: block;
+  width: min(100%, 420px);
+  margin: 30px 0 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.side-video__print {
+  display: block;
+  padding: 8px 8px 0;
+  background: #fff;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.08),
+    0 10px 24px -8px rgba(0, 0, 0, 0.22);
+  transform: rotate(1.4deg);
+  transition:
+    transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.3s ease;
+}
+
+.side-video__frame {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #253a31; /* the cover's chalkboard, while it loads */
+}
+
+.side-video__frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+  -webkit-user-drag: none;
+  transition: transform 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* the play mark: an accent disc with a slow ring breathing out of it */
+.side-video__play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  margin: -27px 0 0 -27px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.5);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.side-video__play svg {
+  margin-left: 3px; /* a triangle's weight sits left of its box */
+}
+
+.side-video__play::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid var(--accent);
+  animation: side-video-ring 2.6s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+}
+
+@keyframes side-video-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  70%,
+  100% {
+    transform: scale(1.65);
+    opacity: 0;
+  }
+}
+
+.side-video__length {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  padding: 2px 6px 3px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.66);
+  color: #fff;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* written on the print's wide bottom margin, in the print's own dark ink (it is white in both themes) */
+.side-video__caption {
+  display: block;
+  padding: 11px 4px 13px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.005em;
+  color: #161412;
+}
+
+.side-video:hover .side-video__print,
+.side-video:focus-visible .side-video__print {
+  transform: rotate(0deg) translateY(-3px);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.08),
+    0 18px 34px -10px rgba(0, 0, 0, 0.3);
+}
+
+.side-video:hover .side-video__frame img {
+  transform: scale(1.035);
+}
+
+.side-video:hover .side-video__play,
+.side-video:focus-visible .side-video__play {
+  transform: scale(1.1);
+}
+
+.side-video:focus-visible {
+  outline: none;
+}
+
+.side-video:focus-visible .side-video__print {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+html[data-theme='dark'] .side-video__print {
+  background: #f4efe6;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 12px 28px -8px rgba(0, 0, 0, 0.7);
+}
+
+@media (max-width: 860px) {
+  .side-video {
+    margin-top: 18px;
+  }
+}
+
+/* ── the player ── */
+
+/* the page stays put under it, its scrollbar's place kept (so nothing shifts) and painted the veil's
+   colour (the veil, fixed to the viewport, stops short of it) */
+html.vplayer-lock {
+  overflow: hidden;
+  scrollbar-gutter: stable;
+  background-color: color-mix(in srgb, #0a0807 88%, var(--paper-base));
+}
+
+/* The dialog covers the screen; the dim veil is its ::backdrop, and a press on the dialog itself
+   (around the player) closes it. Not shown at all until open (the browser's own rule). */
+.vplayer[open] {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: max(14px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right))
+    max(14px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 0;
+  background: transparent;
+  color: #f5eee3;
+  font-family: var(--font-ui);
+  animation: vplayer-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.vplayer::backdrop {
+  background: rgba(10, 8, 7, 0.88);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  animation: vplayer-fade 0.3s ease-out;
+}
+
+@keyframes vplayer-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+}
+
+@keyframes vplayer-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* the site hides the system pointer for its own cursor, which is drawn under the top layer the player
+   sits in: the pointer comes back over the player */
+html.has-custom-cursor .vplayer,
+html.has-custom-cursor .vplayer * {
+  cursor: auto !important;
+}
+
+html.has-custom-cursor .vplayer button,
+html.has-custom-cursor .vplayer input,
+html.has-custom-cursor .vplayer video {
+  cursor: pointer !important;
+}
+
+/* as wide as fits: the screen's width, or its height less the title and the controls */
+.vplayer__stage {
+  width: min(100%, 1180px, calc((100vh - 168px) * 16 / 9));
+  width: min(100%, 1180px, calc((100dvh - 168px) * 16 / 9));
+  min-width: min(100%, 300px);
+}
+
+.vplayer__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.vplayer__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 12px;
+  min-width: 0;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+
+.vplayer__chapter {
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+  color: rgba(245, 238, 227, 0.6);
+}
+
+.vplayer__screen {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #000;
+  box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.9);
+}
+
+.vplayer__screen video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+}
+
+.vplayer__screen video::cue {
+  font-family: 'Archivo', system-ui, sans-serif;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.72);
+}
+
+/* the big play mark over the paused picture */
+.vplayer__big {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  margin: -38px 0 0 -38px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.6);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.vplayer__big svg {
+  width: 30px;
+  height: 30px;
+  margin-left: 4px;
+}
+
+.vplayer__big:hover {
+  transform: scale(1.08);
+}
+
+.vplayer__spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 42px;
+  height: 42px;
+  margin: -21px 0 0 -21px;
+  border: 3px solid rgba(255, 255, 255, 0.22);
+  border-top-color: #fff;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: vplayer-spin 0.8s linear infinite;
+}
+
+@keyframes vplayer-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.vplayer__error {
+  position: absolute;
+  inset: auto 0 0;
+  margin: 0;
+  padding: 14px 18px;
+  background: rgba(0, 0, 0, 0.7);
+  font-size: 14px;
+}
+
+/* ── the controls: the seek bar across the top, the buttons under it ── */
+.vplayer__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  margin-top: 8px;
+}
+
+.vplayer__btn {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.vplayer__btn:hover {
+  background: rgba(245, 238, 227, 0.1);
+}
+
+.vplayer__btn:focus-visible,
+.vplayer__speed:focus-visible,
+.vplayer__big:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.vplayer__close {
+  border: 1px solid rgba(245, 238, 227, 0.22);
+  border-radius: 50%;
+}
+
+.vplayer__time {
+  margin: 0 6px 0 2px;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: rgba(245, 238, 227, 0.78);
+}
+
+.vplayer__time span:first-child {
+  color: #f5eee3;
+}
+
+.vplayer__spacer {
+  flex: 1 1 0;
+}
+
+/* the seek bar: a drawn rail (loaded, played, chapter gaps) under a see-through range input whose
+   thumb is all that shows. The rail is inset by half the thumb, so its ends meet the thumb's centre. */
+.vplayer__seek {
+  --thumb: 14px;
+  position: relative;
+  flex: 1 1 100%;
+  height: 26px;
+}
+
+.vplayer__rail {
+  --played: 0;
+  --loaded: 0;
+  position: absolute;
+  top: 50%;
+  right: calc(var(--thumb) / 2);
+  left: calc(var(--thumb) / 2);
+  height: 4px;
+  margin-top: -2px;
+  border-radius: 2px;
+  background: rgba(245, 238, 227, 0.18);
+  pointer-events: none;
+  transition:
+    height 0.15s ease,
+    margin-top 0.15s ease;
+}
+
+.vplayer__rail::before,
+.vplayer__rail::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+}
+
+.vplayer__rail::before {
+  width: calc(var(--loaded) * 100%);
+  background: rgba(245, 238, 227, 0.32);
+}
+
+.vplayer__rail::after {
+  width: calc(var(--played) * 100%);
+  background: var(--accent);
+}
+
+/* where a chapter starts: a hairline gap in the rail */
+.vplayer__mark {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  width: 2px;
+  margin-left: -1px;
+  background: rgba(10, 8, 7, 0.9);
+}
+
+.vplayer__seek:hover .vplayer__rail {
+  height: 6px;
+  margin-top: -3px;
+}
+
+/* both sliders: a bare input, only the thumb drawn */
+.vplayer__range {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  touch-action: none;
+}
+
+.vplayer__seek .vplayer__range {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.vplayer__range::-webkit-slider-runnable-track {
+  height: 100%;
+  background: transparent;
+}
+
+.vplayer__range::-moz-range-track {
+  height: 100%;
+  background: transparent;
+}
+
+.vplayer__range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: calc((26px - 14px) / 2);
+  border: 0;
+  border-radius: 50%;
+  background: #f5eee3;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  transition: transform 0.15s ease;
+}
+
+.vplayer__range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 0;
+  border-radius: 50%;
+  background: #f5eee3;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.vplayer__range:hover::-webkit-slider-thumb,
+.vplayer__range:focus-visible::-webkit-slider-thumb {
+  transform: scale(1.2);
+}
+
+.vplayer__range:focus-visible {
+  outline: none;
+}
+
+.vplayer__range:focus-visible::-webkit-slider-thumb {
+  box-shadow:
+    0 0 0 3px rgba(10, 8, 7, 0.9),
+    0 0 0 5px var(--accent);
+}
+
+.vplayer__range:focus-visible::-moz-range-thumb {
+  box-shadow:
+    0 0 0 3px rgba(10, 8, 7, 0.9),
+    0 0 0 5px var(--accent);
+}
+
+/* speed: one pill of five, the current one lit */
+.vplayer__speeds {
+  display: flex;
+  flex: none;
+  padding: 2px;
+  border: 1px solid rgba(245, 238, 227, 0.2);
+  border-radius: 999px;
+}
+
+.vplayer__speed {
+  min-width: 44px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(245, 238, 227, 0.72);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.vplayer__speed:hover {
+  color: #f5eee3;
+  background: rgba(245, 238, 227, 0.08);
+}
+
+.vplayer__speed[aria-pressed='true'] {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* captions: a CC tag, filled in when on */
+.vplayer__cc span {
+  padding: 2px 4px 1px;
+  border: 1.5px solid currentColor;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  opacity: 0.75;
+}
+
+.vplayer__cc[aria-pressed='true'] span {
+  border-color: #f5eee3;
+  background: #f5eee3;
+  color: #0c0c0c;
+  opacity: 1;
+}
+
+/* volume: the mute button and a short slider, its filled part drawn on the track */
+.vplayer__volume {
+  display: flex;
+  flex: none;
+  align-items: center;
+}
+
+.vplayer__level {
+  --level: 1;
+  width: 84px;
+  height: 26px;
+  margin: 0 8px 0 2px;
+}
+
+.vplayer__level::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(to right, #f5eee3 calc(var(--level) * 100%), rgba(245, 238, 227, 0.2) 0);
+}
+
+.vplayer__level::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(245, 238, 227, 0.2);
+}
+
+.vplayer__level::-moz-range-progress {
+  height: 4px;
+  border-radius: 2px;
+  background: #f5eee3;
+}
+
+.vplayer__level::-webkit-slider-thumb {
+  width: 12px;
+  height: 12px;
+  margin-top: -4px;
+}
+
+.vplayer__level::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+}
+
+/* ── fullscreen: the stage fills the screen, the picture takes what the controls leave ── */
+.vplayer__stage:fullscreen {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 14px clamp(14px, 3vw, 32px) 12px;
+  background: #000;
+}
+
+.vplayer__stage:fullscreen .vplayer__screen {
+  flex: 1 1 auto;
+  min-height: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.vplayer__stage:fullscreen .vplayer__screen video {
+  height: 100%;
+  aspect-ratio: auto;
+  object-fit: contain;
+}
+
+/* phones: the speeds get a row of their own, under the buttons */
+@media (max-width: 600px) {
+  .vplayer[open] {
+    padding-right: max(10px, env(safe-area-inset-right));
+    padding-left: max(10px, env(safe-area-inset-left));
+  }
+
+  .vplayer__stage {
+    width: 100%;
+  }
+
+  .vplayer__screen {
+    border-radius: 4px;
+  }
+
+  .vplayer__time {
+    margin-right: 0;
+    font-size: 12px;
+  }
+
+  .vplayer__speeds {
+    order: 10;
+    flex: 1 1 100%;
+    justify-content: space-between;
+    margin-top: 4px;
+  }
+
+  .vplayer__speed {
+    flex: 1 1 0;
+    padding: 8px 4px;
+  }
+
+  .vplayer__level {
+    width: 64px;
+    margin-right: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .side-video__print,
+  .side-video__frame img,
+  .side-video__play,
+  .vplayer__big {
+    transition: none;
+  }
+
+  .side-video__play::after {
+    animation: none;
+    opacity: 0;
+  }
+
+  .vplayer[open],
+  .vplayer::backdrop {
+    animation: none;
+  }
+}

@@ -6,7 +6,7 @@ import useStickers from './useStickers.js'
 // its own layers, where stickers stay) sticks one on, and it comes off again
 // after LIFETIME. None on the sign wall, where a click is a brush stroke.
 const LIFETIME = 2400 // ms
-const EXCLUDE = '.hero, .sign-wall, .site-menu, .earring-grab'
+const EXCLUDE = '.hero, .sign-wall, .site-menu, .earring-grab, .message-me__dialog'
 
 export default function PageStickers({ enabled }) {
   const layerRef = useRef(null)

@@ -1,0 +1,63 @@
+/* The hover ring (Scribble.jsx). Box: the word plus 1em each side, ~2.3em tall,
+   centred on the label; the loop's ends overshoot past it, as on the reference. */
+.scribble-link {
+  color: inherit;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.scribble {
+  position: relative;
+  display: inline-block;
+}
+
+.scribble__label {
+  position: relative;
+}
+
+.scribble__ring {
+  position: absolute;
+  left: -1em;
+  right: -1em;
+  top: 50%;
+  height: 2.3em;
+  transform: translateY(-50%);
+  overflow: visible;
+  pointer-events: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--scribble-w, 1.15px);
+  stroke-linecap: butt;
+}
+
+.scribble__ring path {
+  stroke-dasharray: 1 1;
+  stroke-dashoffset: 1;
+  opacity: 0;
+}
+
+/* Drawn on in 0.3 s; gone at once when the pointer leaves (no transition back). */
+@media (hover: hover) {
+  .scribble-link:hover .scribble__ring path {
+    opacity: 1;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 0.3s cubic-bezier(0.44, 0, 0.56, 1);
+  }
+}
+
+.scribble-link:focus-visible {
+  outline: none;
+}
+
+.scribble-link:focus-visible .scribble__ring path,
+.scribble-link.is-current .scribble__ring path {
+  opacity: 1;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.3s cubic-bezier(0.44, 0, 0.56, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scribble-link .scribble__ring path {
+    transition: none !important;
+  }
+}

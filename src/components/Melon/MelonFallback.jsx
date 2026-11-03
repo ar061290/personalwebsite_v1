@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { setMelon } from '../../lib/melonBus.js'
 import { SHAPE, seedLayout } from './geometry.js'
 import { VIEW, eyesGap, layoutTarget } from './framing.js'
+import BarFallback from './BarFallback.jsx'
 
 // Static Rosé slice for browsers without WebGPU: same outline, layering, seeds,
 // upright 3/4 pose and framing as the 3D one. Not interactive (hitTest is false).
@@ -80,10 +81,16 @@ const WALLS = (() => {
     return poly([a, b, back(b), back(a)])
   })
   let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity
-  for (const [x, y] of hull) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y) }
-  return { hull: poly(hull), rind: poly(rind), rim: 'M ' + arc.map(back).map((p) => `${f(p[0])} ${f(p[1])}`).join(' L '), stripes, box: { x0, x1, y0, y1 } }
+  let tip = hull[0]
+  for (const p of hull) {
+    const [x, y] = p
+    x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y)
+    if (y > tip[1]) tip = p // lowest point of the silhouette: the rounded tip
+  }
+  return { hull: poly(hull), rind: poly(rind), rim: 'M ' + arc.map(back).map((p) => `${f(p[0])} ${f(p[1])}`).join(' L '), stripes, box: { x0, x1, y0, y1 }, tip }
 })()
 const BOX = WALLS.box
+const TIP = WALLS.tip
 
 const SEEDS = seedLayout()
   .filter((s) => s.face > 0)
@@ -115,10 +122,16 @@ function layout(w, h) {
   const ty = L.cy - k * (BOX.y0 + BOX.y1) / 2
   // top-centre of the rind: between the front and back rims, whichever is higher
   const anchor = { x: tx + k * (DX / 2), y: ty + k * (-Ro * FY + Math.min(0, DY)) - eyesGap(h) }
-  return { k, tx, ty, anchor }
+  const tip = { x: tx + k * TIP[0], y: ty + k * TIP[1] }
+  return { k, tx, ty, anchor, tip }
 }
 
-export default function MelonFallback({ className = '' }) {
+// the theme's model: the slice (light) or the chocolate bar (dark, BarFallback.jsx)
+export default function MelonFallback({ className = '', theme = 'light' }) {
+  return theme === 'dark' ? <BarFallback className={className} /> : <SliceFallback className={className} />
+}
+
+function SliceFallback({ className = '' }) {
   const svgRef = useRef(null)
   const [size, setSize] = useState(null)
   const geo = useMemo(() => (size ? layout(size.w, size.h) : null), [size])
@@ -148,6 +161,13 @@ export default function MelonFallback({ className = '' }) {
         if (!g || !svg) return null
         const r = svg.getBoundingClientRect()
         return { x: r.left + g.anchor.x, y: r.top + g.anchor.y }
+      },
+      // same contract as the WebGPU engine: client px of the slice's lowest point (juice drips from it)
+      getTipAnchor() {
+        const g = geoRef.current, svg = svgRef.current
+        if (!g || !svg) return null
+        const r = svg.getBoundingClientRect()
+        return { x: r.left + g.tip.x, y: r.top + g.tip.y }
       },
       wobble() {},
       destroy() {},

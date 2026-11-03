@@ -1,0 +1,69 @@
+.about-me {
+  position: relative;
+  z-index: 1;
+  max-width: 600px;
+  color: var(--ink);
+}
+
+.about-me__kicker {
+  margin: 0 0 18px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+  color: var(--ink-soft, rgba(12, 12, 12, 0.58));
+}
+
+.about-me__greeting {
+  margin: 0 0 28px;
+  font-size: clamp(44px, 6.4vw, 104px);
+  font-weight: 800;
+  font-stretch: 125%;
+  line-height: 0.9;
+  letter-spacing: -0.035em;
+}
+
+.about-me__body {
+  max-width: 44ch;
+  margin: 0 0 16px;
+  font-size: clamp(17px, 1.35vw, 20px);
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.about-me__now {
+  margin: 34px 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--rule, rgba(12, 12, 12, 0.14));
+}
+
+.about-me__now li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2px 20px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--rule, rgba(12, 12, 12, 0.14));
+}
+
+.about-me__now a {
+  font-size: 15px;
+  padding: 2px 0;
+}
+
+.about-me__where {
+  font-size: 13px;
+  color: var(--ink-soft, rgba(12, 12, 12, 0.6));
+}
+
+.about-me__more {
+  margin: 26px 0 0;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+}
+
+.about-me__more a {
+  display: inline-block;
+  padding: 4px 0;
+}

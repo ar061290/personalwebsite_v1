@@ -25,4 +25,19 @@ export const FLUID_DEFAULTS = {
   GREEN_CHANCE: 0.14,
   GREEN_STRENGTH: 1.0,
   GREEN_OPACITY: 0.55,
+  // Display palette: 'rose' (light theme) or 'milk' (dark theme), fluidSim.js.
+  PALETTE: 'rose',
+}
+
+// Dark theme (html[data-theme='dark']): white milk on black paper, composited
+// normally in paper.css instead of multiply. Merged over the defaults,
+// under any explicit props.
+// Thin milk over black reads as grey smoke, so it saturates sooner (higher gain
+// and ceiling) and is shaded less, to stay a creamy white.
+export const FLUID_DARK = {
+  PALETTE: 'milk',
+  INK_GAIN: 4.2,
+  INK_MAX_ALPHA: 0.96,
+  SHADE_AMOUNT: 0.3,
+  GREEN_OPACITY: 0.9,
 }

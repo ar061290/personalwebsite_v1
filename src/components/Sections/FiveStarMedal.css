@@ -1,0 +1,146 @@
+/* The 5 Star medal (FiveStarMedal.jsx), hung at the page's right. Placed in
+   document coordinates (a sibling of the page, not inside it) so it can sit over
+   the page-wide sticker layer (z 40) and under the header (z 50). The picture is
+   tilted about the ribbon's top, so the bar swings down and left, across the
+   fold; the ribbon's cut ends fade in rather than stop. */
+.fivestar {
+  --w: clamp(190px, 20vw, 390px);
+  position: absolute;
+  top: calc(var(--header-h) + 14vh);
+  right: 2.5vw;
+  z-index: 45;
+  width: var(--w);
+  aspect-ratio: 521 / 1383;
+  pointer-events: none;
+  animation: fivestar-hang 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+}
+
+@keyframes fivestar-hang {
+  from {
+    opacity: 0;
+    transform: translateY(-48px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.fivestar__swing {
+  position: absolute;
+  inset: 0;
+  transform: rotate(10deg);
+  transform-origin: 50% 0;
+}
+
+.fivestar__img {
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 15%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 15%);
+  filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.16));
+}
+
+/* the wrapped bar, as a share of the picture (measured from the cut-out) */
+.fivestar__bar {
+  position: absolute;
+  left: 33.4%;
+  top: 60%;
+  width: 33.8%;
+  height: 39.8%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fivestar__bar:focus-visible {
+  outline: 1.5px solid var(--ink);
+  outline-offset: 4px;
+}
+
+/* The note: level (not tilted), to the left of where the bar has swung to. */
+.fivestar__note {
+  position: absolute;
+  top: 79%;
+  right: 104%;
+  width: max-content;
+  max-width: min(280px, 60vw);
+  margin: 0;
+  padding: 14px 16px 15px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 13px;
+  line-height: 1.5;
+  letter-spacing: 0.005em;
+  opacity: 0;
+  transform: translate(8px, -50%);
+  transition:
+    opacity 0.22s ease,
+    transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.fivestar__note-kicker {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  opacity: 0.6;
+}
+
+@media (hover: hover) {
+  .fivestar:has(.fivestar__bar:hover) .fivestar__note {
+    opacity: 1;
+    transform: translate(0, -50%);
+  }
+}
+
+.fivestar:has(.fivestar__bar:focus-visible) .fivestar__note,
+.fivestar.is-open .fivestar__note {
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+
+/* The page's figures (7, 1540, ...) keep to the left, clear of where the bar hangs. */
+@media (min-width: 721px) {
+  .cpage--academics .cpage__stats {
+    max-width: 62%;
+  }
+}
+
+/* Phones: smaller, tucked further right, so it hangs beside the page's text
+   rather than over it; the note opens above the bar instead of beside it. */
+@media (max-width: 720px) {
+  .fivestar {
+    --w: 30vw;
+    top: calc(var(--header-h) + 4vh);
+    right: -2vw;
+  }
+
+  .fivestar__note {
+    top: auto;
+    bottom: 44%;
+    right: 20%;
+    transform: translate(0, 8px);
+  }
+
+  .fivestar.is-open .fivestar__note,
+  .fivestar:has(.fivestar__bar:focus-visible) .fivestar__note {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fivestar {
+    animation: none;
+  }
+
+  .fivestar__note {
+    transition: opacity 0.2s ease;
+  }
+}

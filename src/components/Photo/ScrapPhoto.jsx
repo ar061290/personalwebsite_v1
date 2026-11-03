@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import useScrollLerp from '../../lib/useScrollLerp.js'
+import Signature from '../Signature/Signature.jsx'
 import './ScrapPhoto.css'
 
 // A taped print whose picture reveals from its centre each time it scrolls into
@@ -30,6 +31,8 @@ export default function ScrapPhoto({ src, alt, width, height, className = '' }) 
           <img src={src} alt={alt} width={width} height={height} />
         </div>
       </div>
+      {/* Signed in ink across the print's corner; it draws itself on the way in. */}
+      <Signature className="scrap-photo__signature" />
     </figure>
   )
 }

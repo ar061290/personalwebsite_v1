@@ -7,9 +7,18 @@
   src: url('../assets/fonts/archivo-latin-var.woff2') format('woff2');
 }
 
+/* Theme tokens (src/lib/theme.js). Light is the watermelon on white watercolour
+   paper; dark (html[data-theme='dark']) is the chocolate bar on black paper with
+   milk-white ink. Components use these names; component-specific dark styles
+   live in each component's own css under html[data-theme='dark']. */
 :root {
-  --bg: #ffffff;
+  --paper-base: #f6f3ed; /* the paper tile's mean colour */
+  --bg: var(--paper-base);
   --ink: #0c0c0c;
+  --ink-soft: rgba(12, 12, 12, 0.58);
+  --rule: rgba(12, 12, 12, 0.18);
+  --accent: #e8798f;
+  --accent-ink: #ffffff;
   --font-ui: 'Archivo', system-ui, sans-serif;
   --header-h: 64px;
 
@@ -28,6 +37,17 @@
   --z-eyes: 60;
   --z-intro: 1000;
   --z-cursor: 2000;
+}
+
+html[data-theme='dark'] {
+  --paper-base: #100e0c; /* black paper (PAPER_BASE_DARK), a breath of cocoa in the black */
+  --bg: var(--paper-base);
+  --ink: #f5eee3; /* milk */
+  --ink-soft: rgba(245, 238, 227, 0.62);
+  --rule: rgba(245, 238, 227, 0.2);
+  --accent: #f0603a; /* the wrapper's orange-red, used sparingly */
+  --accent-ink: #140e0b;
+  color-scheme: dark;
 }
 
 *,
@@ -64,8 +84,8 @@ svg {
 }
 
 ::selection {
-  background: #e8798f;
-  color: #fff;
+  background: var(--accent);
+  color: var(--accent-ink);
 }
 
 .page {

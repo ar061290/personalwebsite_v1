@@ -4,14 +4,97 @@
   z-index: var(--z-header);
   height: var(--header-h);
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
+  column-gap: 28px;
   padding: 0 clamp(16px, 3vw, 32px);
+  color: var(--ink);
   pointer-events: none;
 }
 
-.site-header a {
+/* The nav would crowd the centre: the eyes sit centred between the name and the nav. */
+.site-header--tight {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+/* A soft paper fade under the bar once there is page under it. */
+.site-header::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 -18px 0;
+  z-index: -2;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--paper-base, var(--bg)) 92%, transparent) 0%,
+    color-mix(in srgb, var(--paper-base, var(--bg)) 70%, transparent) 62%,
+    transparent 100%
+  );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.site-header.is-scrolled::before {
+  opacity: 1;
+}
+
+.site-header a,
+.site-header button {
   pointer-events: auto;
+}
+
+/* Everything pressable answers over the bar's full height, not just its text: an
+   invisible strip from the bar's top to its bottom (top/bottom % are of the
+   element itself, so 50% - half the bar centres it on the bar), widened sideways
+   to meet its neighbours. Nothing visible moves. */
+.site-header__name,
+.site-header__nav a,
+.site-header__resume,
+.site-header .icon-btn,
+.site-header .theme-toggle,
+.site-header__menu {
+  position: relative;
+}
+
+.site-header__name::after,
+.site-header__nav a::after,
+.site-header__resume::after,
+.site-header .icon-btn::after,
+.site-header .theme-toggle::after,
+.site-header__menu::after {
+  content: '';
+  position: absolute;
+  top: calc(50% - var(--header-h) / 2);
+  bottom: calc(50% - var(--header-h) / 2);
+  left: 0;
+  right: 0;
+}
+
+.site-header__name::after {
+  left: -8px;
+  right: -8px;
+}
+
+/* half the 18px gap between the links */
+.site-header__nav a::after {
+  left: -9px;
+  right: -9px;
+}
+
+/* half its 8px margin to the music button */
+.site-header__resume::after {
+  left: -4px;
+  right: -4px;
+}
+
+.site-header .icon-btn::after,
+.site-header .theme-toggle::after {
+  left: -1px;
+  right: -1px;
+}
+
+.site-header__name,
+.site-header__nav a {
   color: inherit;
   text-decoration: none;
   font-size: 13px;
@@ -19,13 +102,227 @@
   text-transform: lowercase;
 }
 
+.site-header__name {
+  justify-self: start;
+  white-space: nowrap;
+}
+
 .site-header__eyes-slot {
+  justify-self: center;
   width: 56px;
   height: 36px;
 }
 
-.site-header__nav {
+.site-header__right {
+  position: relative;
   justify-self: end;
   display: flex;
-  gap: 20px;
+  align-items: center;
+  gap: 28px;
+}
+
+.site-header__nav {
+  width: max-content;
+}
+
+.site-header__nav ul {
+  display: flex;
+  gap: 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  white-space: nowrap;
+}
+
+.site-header__nav a {
+  display: inline-block;
+  padding: 6px 0;
+}
+
+.site-header__tools {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* The resume: a small outlined pill that fills on hover. */
+.site-header__resume {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 8px;
+  padding: 6px 12px 6px 14px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  color: inherit;
+  text-decoration: none;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+.site-header__resume svg {
+  width: 11px;
+  height: 11px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.site-header__resume:hover,
+.site-header__resume:focus-visible {
+  background: var(--ink);
+  color: var(--bg);
+  outline: none;
+}
+
+.site-header__resume:hover svg {
+  transform: translateY(1.5px);
+}
+
+.site-header__menu {
+  display: none;
+  height: 36px;
+  padding: 0 2px 0 10px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+/* Compact: the nav and the resume go into the menu. They stay laid out, unseen and out of
+   flow, so the header can still measure their natural widths (Header.jsx). */
+.site-header--compact .site-header__nav,
+.site-header--compact .site-header__resume {
+  position: absolute;
+  top: 0;
+  right: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.site-header--compact .site-header__right {
+  gap: 0;
+}
+
+.site-header--compact .site-header__menu {
+  display: block;
+}
+
+/* ── the menu overlay (compact only) ── */
+html.is-menu-open,
+html.is-menu-open body {
+  overflow: hidden;
+}
+
+html.is-menu-over-eyes .googly {
+  visibility: hidden;
+}
+
+.site-menu {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 40px;
+  padding: calc(var(--header-h) + 5vh) clamp(16px, 6vw, 48px) 32px;
+  overflow-y: auto;
+  background: var(--paper-base, var(--bg));
+  color: var(--ink);
+  pointer-events: auto;
+  animation: site-menu-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.site-menu[hidden] {
+  display: none;
+}
+
+@keyframes site-menu-in {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.site-menu__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: menu;
+}
+
+.site-menu__list li {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 2px 0;
+  animation: site-menu-item 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(0.08s + var(--i) * 0.035s);
+}
+
+@keyframes site-menu-item {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.site-menu__list a {
+  --scribble-w: 1.6px;
+  font-size: clamp(34px, 9vw, 64px);
+  font-weight: 800;
+  font-stretch: 125%;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+
+.site-menu__title {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft, rgba(12, 12, 12, 0.6));
+}
+
+.site-menu__foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+}
+
+.site-menu__foot a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule, rgba(12, 12, 12, 0.2));
+  padding-bottom: 2px;
+}
+
+@media (max-width: 520px) {
+  .site-menu__title {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-menu,
+  .site-menu__list li {
+    animation: none;
+  }
 }

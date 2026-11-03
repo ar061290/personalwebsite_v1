@@ -1,0 +1,139 @@
+/* The theme switch, ported from the Drama Collective site: the button (its index.html and the icon
+   controls in components.css), the view transition's circle and its ring (components.css, base.css),
+   and the earrings (earrings.css). Colours are this site's tokens (global.css). */
+
+/* ---- the button: the sun brings the light back, the moon brings the dark ---- */
+.theme-toggle {
+  width: 44px;
+  height: 44px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 0;
+  color: var(--ink, #0c0c0c);
+  cursor: pointer;
+  /* the header lets the pointer through but for what is in it to press (Header.css) */
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color 120ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    border-color 120ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.theme-toggle:hover {
+  color: var(--accent, #e8798f);
+  border-color: var(--rule, rgba(12, 12, 12, 0.18));
+}
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--accent, #e8798f);
+  outline-offset: 2px;
+}
+.theme-toggle svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+/* the glyph is the theme a click brings: the moon in the light, the sun in the dark */
+.theme-toggle .theme-toggle__sun,
+html[data-theme='dark'] .theme-toggle .theme-toggle__moon {
+  display: none;
+}
+html[data-theme='dark'] .theme-toggle .theme-toggle__sun {
+  display: block;
+}
+
+/* ---- the switch (./themeSwitch.js) ----
+   A view transition: the page as it was held still underneath while the page as it now is grows
+   over it in a circle from the button (the script animates the circle), so the pictures' own
+   cross-fade is turned off. While the new page is being pictured, nothing eases into its new
+   colours. */
+:root.is-theming::view-transition-old(root),
+:root.is-theming::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+.theme-snap,
+.theme-snap *,
+.theme-snap *::before,
+.theme-snap *::after {
+  transition: none !important;
+}
+/* without view transitions: colours cross-fade for one beat (the class is removed after 700 ms) */
+.theme-fade,
+.theme-fade *,
+.theme-fade *::before,
+.theme-fade *::after {
+  transition:
+    background-color 0.6s cubic-bezier(0.65, 0, 0.35, 1),
+    color 0.6s cubic-bezier(0.65, 0, 0.35, 1),
+    border-color 0.6s cubic-bezier(0.65, 0, 0.35, 1),
+    box-shadow 0.6s cubic-bezier(0.65, 0, 0.35, 1),
+    fill 0.6s cubic-bezier(0.65, 0, 0.35, 1) !important;
+}
+/* the ring on the circle's edge (./themeRing.js): over the header, the eyes and the earrings, under
+   the intro and the cursor; during a view transition it is pictured on its own, live, above both
+   pictures of the page */
+.theme-ring {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: calc(var(--z-eyes, 60) + 20);
+  pointer-events: none;
+  view-transition-name: aadi-theme-ring;
+}
+::view-transition-group(aadi-theme-ring),
+::view-transition-new(aadi-theme-ring) {
+  animation: none;
+}
+::view-transition-old(aadi-theme-ring) {
+  display: none;
+}
+
+/* ---- the earrings on the switch (./earrings.js, ./earringsScene.js) ----
+   One canvas under the button, over the header and the eyes, under the ring; its top edge is where
+   the earring comes out of the button. The script places it (a transform) and sizes it. It never
+   takes the pointer: the zone over the earring does. During the theme's switch the canvas is
+   pictured on its own, live, above both pictures of the page (as the ring is), so the earring is not
+   clipped by the widening circle. Phones (under 768 px wide) have none. */
+.earring-canvas {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: calc(var(--z-eyes, 60) + 10);
+  pointer-events: none;
+  view-transition-name: aadi-earring;
+}
+::view-transition-group(aadi-earring),
+::view-transition-new(aadi-earring) {
+  animation: none;
+}
+::view-transition-old(aadi-earring) {
+  display: none;
+}
+
+/* the zone over the earring that takes the pointer, shaped to the earring by a clip-path the script
+   sets (the outlines of its parts), so the page around it keeps the pointer: a finger on the earring
+   does not scroll the page; over the earring itself the cursor reads "drag" (data-cursor, set by the
+   script), or the native one grabs */
+.earring-grab {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: calc(var(--z-eyes, 60) + 10);
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.earring-grab[hidden] {
+  display: none;
+}
+.earring-grab.is-over {
+  cursor: grab;
+}
+.earring-grab.is-held {
+  cursor: grabbing;
+}

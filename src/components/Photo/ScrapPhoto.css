@@ -92,3 +92,53 @@
     transition: opacity 0.6s ease;
   }
 }
+
+/* The signature hangs off the print's top-left corner, as on haoqi.design,
+   but signs the paper ABOVE the picture rather than the picture itself: the A
+   stands past the left edge, "adi" runs just above the top border across the
+   taped corner, and only the A's foot and the exit stroke touch the print. The
+   picture (dark hair, navy suit, bright wall) never sits behind the letters, so
+   the ink reads in both themes: black on the light sheet, milk on the black
+   one. It sits inside the print, so it shares its tilt (the artwork has its own
+   rising slant). Above the picture and tape; it never takes the pointer. */
+.scrap-photo__signature {
+  position: absolute;
+  z-index: 2;
+  left: -14%;
+  top: -19%;
+  width: 62%;
+}
+
+/* Phones: the print sits on the 16px page gutter, so it hangs off less. */
+@media (max-width: 760px) {
+  .scrap-photo__signature {
+    left: -4%;
+    top: -17%;
+    width: 64%;
+  }
+}
+
+/* -- dark theme: the same print on black paper --
+   A milk-white print (a touch warmer than pure white so it doesn't glare), a
+   deeper shadow so it lifts off the black, and translucent tape in the bar's
+   wrapper colours: multiply would vanish on black, so the tape is laid on
+   normally. */
+html[data-theme='dark'] .scrap-photo {
+  background: #f6f1e8;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 14px 34px -10px rgba(0, 0, 0, 0.85);
+}
+
+html[data-theme='dark'] .scrap-photo__tape {
+  opacity: 0.78;
+  mix-blend-mode: normal;
+}
+
+html[data-theme='dark'] .scrap-photo__tape--left {
+  background: #f0603a;
+}
+
+html[data-theme='dark'] .scrap-photo__tape--right {
+  background: #f2cf96;
+}

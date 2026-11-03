@@ -1,0 +1,49 @@
+/* Both layers stack directly in .home (an isolated group that paints the
+   paper itself, see paper.css), so the stain can blend with the real paper. */
+
+/* The stain is IN the paper: under the page content, multiplied into the
+   sheet. Sized and placed (translate3d, document px) by juiceController.js. */
+.juice-stain {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: var(--z-stain);
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  will-change: opacity;
+}
+
+.juice-stain__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Milk on black paper: a pale bloom that lightens the sheet. The canvas
+   already holds the final colour, so screen it rather than multiply. */
+html[data-theme='dark'] .juice-stain {
+  mix-blend-mode: screen;
+}
+
+/* Fainter than the juice: the about text is cream on black, and a full-strength
+   bloom under it washed it out. (The host's own opacity is the fade, set inline.) */
+html[data-theme='dark'] .juice-stain__canvas {
+  opacity: 0.5;
+}
+
+/* 128 × 168 CSS px sprite; position (fixed while it falls, absolute once it
+   has landed) and transform are set per frame. */
+.juice-drop {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: var(--z-drop);
+  width: 128px;
+  height: 168px;
+  visibility: hidden;
+  pointer-events: none;
+  will-change: transform;
+}

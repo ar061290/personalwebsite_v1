@@ -3,16 +3,24 @@
    One 1024 px tile shown at 512 CSS px, repeating from the document's top-left
    and scrolling with it: page (0, 0) = tile (0, 0). Keep the size/position in
    sync with PAPER_TILE_CSS in src/assets/paper/index.js — the juice sim samples
-   the height map with the same tiling. */
+   the height map with the same tiling.
+
+   Dark theme: paper-dark.webp is the same sheet (same seed, same tooth, same
+   height map) shaded on a near-black base. --paper-base / --bg (the tile's
+   mean colour) are defined in global.css for both themes. */
 
 :root {
-  --bg: #f6f3ed; /* PAPER_BASE: the tile's mean colour */
+  --paper-tile: url('../assets/paper/paper.webp');
+}
+
+html[data-theme='dark'] {
+  --paper-tile: url('../assets/paper/paper-dark.webp');
 }
 
 /* The root background propagates to the canvas; its image is positioned
    against <html>, which starts at document (0, 0). */
 html {
-  background: #f6f3ed url('../assets/paper/paper.webp') 0 0 / 512px 512px repeat;
+  background: var(--paper-base) var(--paper-tile) 0 0 / 512px 512px repeat;
 }
 
 body {
@@ -29,6 +37,11 @@ body {
   background: #fff;
 }
 
+/* ...and black when the stored theme is dark (the dark intro). */
+html[data-theme='dark'] #root:empty::before {
+  background: #000;
+}
+
 /* .home is an isolated group (isolation: isolate in Home.css), so blend modes
    inside it can't see the canvas background. Painting the same tile here — it
    starts at document (0, 0) too, so the two line up exactly — gives the ink
@@ -37,15 +50,27 @@ body {
    stacks directly in .home (like .fluid-layer, or a stain at --z-stain) — not
    when it sits inside .about (z-index: 2). */
 .home {
-  background: #f6f3ed url('../assets/paper/paper.webp') 0 0 / 512px 512px repeat;
+  background: var(--paper-base) var(--paper-tile) 0 0 / 512px 512px repeat;
 }
 
-/* The intro overlay stays plain white. */
+/* The intro overlay stays plain white (plain black in dark). */
 .intro {
   --bg: #fff;
 }
 
-/* Ink soaks into the sheet: the paper's tooth shows through the pigment. */
+html[data-theme='dark'] .intro {
+  --bg: #000;
+}
+
+/* Ink soaks into the sheet: the paper's tooth shows through the pigment.
+   Multiply does nothing on black, so in dark the milk is laid on top with
+   plain alpha compositing (on near-black it is the same as screen, without
+   screen's risks): white lifts out of the black and the sheet's tooth still
+   shows through the thin edges. FluidBackground switches the dye colours. */
 .fluid-layer {
   mix-blend-mode: multiply;
+}
+
+html[data-theme='dark'] .fluid-layer {
+  mix-blend-mode: normal;
 }

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import { getMelonEyesAnchor } from '../../lib/melonBus.js'
+import { onThemeChange } from '../../lib/theme.js'
 import './GooglyEyes.css'
 
 // Geometry and follow logic cloned from the Framer "eyes" component
@@ -8,10 +9,14 @@ import './GooglyEyes.css'
 const MAX_OFFSET = 10
 const EYES_H = 36
 const HERO_SCALE = 1.6
+// A theme change swaps the hero model (melon ⇄ chocolate bar) and so moves the eyes' anchor; a
+// gentle change eases them over (an instant one, inside the theme's view transition, jumps).
+const SHIFT_S = 0.5
 
 const clamp01 = (v) => Math.min(1, Math.max(0, v))
 const lerp = (a, b, t) => a + (b - a) * t
 const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2)
+const easeOutCubic = (t) => 1 - (1 - t) ** 3
 
 function Eye({ pupilRef }) {
   return (
@@ -38,6 +43,12 @@ export default function GooglyEyes() {
     let away = isHomeRef.current ? 0 : 1 // 0 = home layout, 1 = header
     let last = performance.now()
     let raf = 0
+    // theme-change easing: the shown hero point (page px) last frame, and the offset being eased out
+    let shown = null, shift = null, pendingShift = false
+    const offTheme = onThemeChange((_, { instant }) => {
+      pendingShift = !instant && !matchMedia('(prefers-reduced-motion: reduce)').matches
+      if (!pendingShift) shift = null
+    })
 
     const onMove = (e) => {
       pointer = { x: e.clientX, y: e.clientY }
@@ -83,6 +94,16 @@ export default function GooglyEyes() {
 
       const header = headerPoint()
       const hero = heroPoint()
+      if (pendingShift && shown) shift = { x: shown.x - window.scrollX - hero.x, y: shown.y - window.scrollY - hero.y, t: 0 }
+      pendingShift = false
+      if (shift) {
+        shift.t += dt
+        const k = 1 - easeOutCubic(Math.min(1, shift.t / SHIFT_S))
+        hero.x += shift.x * k
+        hero.y += shift.y * k
+        if (k === 0) shift = null
+      }
+      shown = { x: hero.x + window.scrollX, y: hero.y + window.scrollY }
 
       // On home the eyes ride on the rind as it scrolls up, then dock into
       // the header slot once they reach it.
@@ -106,6 +127,7 @@ export default function GooglyEyes() {
     raf = requestAnimationFrame(tick)
     return () => {
       window.removeEventListener('pointermove', onMove)
+      offTheme()
       cancelAnimationFrame(raf)
     }
     // pupils are stable refs

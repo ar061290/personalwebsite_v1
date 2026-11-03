@@ -6,6 +6,7 @@ import ScrollHint from '../components/ScrollHint/ScrollHint.jsx'
 import JuiceDrop from '../components/JuiceDrop/JuiceDrop.jsx'
 import ScrapPhoto from '../components/Photo/ScrapPhoto.jsx'
 import SpectraNoise from '../components/SpectraNoise/SpectraNoise.jsx'
+import AboutContent from '../components/Sections/AboutContent.jsx'
 import aadiPhoto from '../assets/photos/aadi.webp'
 import './Home.css'
 
@@ -28,11 +29,11 @@ export default function Home({ introDone }) {
         <ScrollHint visible={introDone} />
       </section>
 
-      <section className="about">
+      <section className="about" id="about">
         {/* Picks up right where the hero's fluid and stickers are cut off. */}
         <SpectraNoise className="about__spectra" />
         <ScrapPhoto className="about__photo" src={aadiPhoto} alt="Aadi Ramnani" width="760" height="950" />
-        <div className="about__content" />
+        <AboutContent className="about__content" />
         <div className="about__impact" ref={impactRef} data-juice-impact aria-hidden="true" />
       </section>
 

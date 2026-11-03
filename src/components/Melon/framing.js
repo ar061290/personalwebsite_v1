@@ -35,10 +35,29 @@ export function layoutTarget(W, H) {
 export const eyesGap = (H) => Math.round(Math.max(6, 0.012 * H))
 
 // camera direction (from the slice toward the eye) in rest coordinates
-export function eyeDirection() {
+export function eyeDirection(view = VIEW) {
   const { right: X, up: Y, out: Z } = UPRIGHT
-  const sy = Math.sin(VIEW.yaw) * Math.cos(VIEW.pitch)
-  const sp = Math.sin(VIEW.pitch)
-  const so = Math.cos(VIEW.yaw) * Math.cos(VIEW.pitch)
+  const sy = Math.sin(view.yaw) * Math.cos(view.pitch)
+  const sp = Math.sin(view.pitch)
+  const so = Math.cos(view.yaw) * Math.cos(view.pitch)
   return [0, 1, 2].map((k) => X[k] * sy + Y[k] * sp + Z[k] * so)
+}
+
+// ── the chocolate bar (dark theme, the user's GLB: barModel.js) ──
+// A product shot: the bar lies on its back as in the file (its top, the pieces and grooves, is rest
+// +y; its length runs along x, the end showing the filling at −x) and the camera looks down on it from
+// the front right (−z, −x) and above, its up the bar's own up (+y), the melon's lens. The grooves read
+// as valleys, the front wall and the filled end show. A long low box: the bar is wide and thin.
+export const BAR_VIEW = { yaw: 0.5, pitch: -0.79, up: [0, 1, 0], fov: VIEW.fov }
+
+export function barLayoutTarget(W, H) {
+  const base = Math.min(W, 1.4 * H)
+  // ≈50% of the base on desktop, nearly the full width on phones
+  const frac = 0.9 + (0.5 - 0.9) * smoothstep(420, 900, W)
+  return {
+    width: frac * base,
+    maxHeight: 0.4 * H,
+    cx: 0.5 * W,
+    cy: 0.55 * H,
+  }
 }

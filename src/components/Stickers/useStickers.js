@@ -6,8 +6,10 @@ import './Stickers.css'
 
 // Click-to-place stickers, cloned from vegan.ning-h.com's initializeSticker()
 // (numbers, timings and removal behaviour are theirs; see specs/cursor-stickers.md).
-// Stickers go into one of two layers that sit under the watermelon: the first one
-// lands above the fluid background, every later one is a coin flip.
+// In the hero they go into one of two layers that sit under the watermelon: the
+// first one lands above the fluid background, every later one is a coin flip, and
+// they stay. Everywhere else on the site one page-wide layer takes them, and each
+// one comes off again after a short while (`lifetime`).
 
 const MAX_STICKERS = 16
 const RECENT_MEMORY = 4 // a sticker is not repeated within the last four picks
@@ -51,11 +53,22 @@ function createPicker() {
   }
 }
 
+// Decoded art for both themes, held so a theme switch can swap every placed
+// sticker's src in the same frame (stickerFactory.js).
+const artCache = []
+
 function preloadArt() {
-  for (const sticker of PHYSICS_STICKERS) {
-    const img = new Image()
-    img.decoding = 'async'
-    img.src = sticker.src
+  if (!artCache.length) {
+    for (const sticker of PHYSICS_STICKERS) {
+      for (const url of [sticker.src, sticker.srcDark]) {
+        if (!url) continue
+        const img = new Image()
+        img.decoding = 'async'
+        img.src = url
+        img.decode?.().catch(() => {})
+        artCache.push(img)
+      }
+    }
   }
   try {
     document.fonts?.load(greekFont(GREEK_BASE_SIZE), GREEK_LETTERS.join('')).catch(() => {})
@@ -64,7 +77,7 @@ function preloadArt() {
   }
 }
 
-function createStickerBoard({ underRef, overRef, isEnabled }) {
+function createStickerBoard({ underRef, overRef, isEnabled, lifetime = 0, exclude = '', page = false }) {
   const pick = createPicker()
   const placed = [] // oldest first
   const leaving = new Set()
@@ -81,6 +94,7 @@ function createStickerBoard({ underRef, overRef, isEnabled }) {
   function retire(record) {
     cancelAnimationFrame(record.raf)
     clearTimeout(record.timer)
+    clearTimeout(record.life)
     record.el.classList.add('is-removing')
     leaving.add(record)
     record.timer = setTimeout(() => {
@@ -111,8 +125,15 @@ function createStickerBoard({ underRef, overRef, isEnabled }) {
     })
     parent.append(el)
 
-    const record = { el, parent, x, y, width, height, layerW: rect.width, layerH: rect.height, raf: 0, timer: 0 }
+    const record = { el, parent, x, y, width, height, layerW: rect.width, layerH: rect.height, raf: 0, timer: 0, life: 0 }
     placed.push(record)
+    if (lifetime > 0) {
+      record.life = setTimeout(() => {
+        const i = placed.indexOf(record)
+        if (i >= 0) placed.splice(i, 1)
+        retire(record)
+      }, lifetime)
+    }
 
     // Commit the scale(0) start state so the pop-in transition always runs.
     void el.offsetWidth
@@ -135,10 +156,13 @@ function createStickerBoard({ underRef, overRef, isEnabled }) {
     const parent = layer(over)
     if (!parent) return
 
+    // The page layer is a zero-height sheet at the document's top-left, so its
+    // stickers scroll with the page wherever they land; the hero's layers are
+    // boxes, and a click must land inside one.
     const rect = parent.getBoundingClientRect()
     const x = clientX - rect.left
     const y = clientY - rect.top
-    if (x < 0 || y < 0 || x > rect.width || y > rect.height) return
+    if (!page && (x < 0 || y < 0 || x > rect.width || y > rect.height)) return
 
     placedFirst = true
     while (placed.length >= maxStickers()) retire(placed.shift())
@@ -150,8 +174,9 @@ function createStickerBoard({ underRef, overRef, isEnabled }) {
     if (!isEnabled() || !e.isPrimary || e.button !== 0 || e.ctrlKey || e.metaKey) return
 
     const target = e.target instanceof Element ? e.target : null
-    const scope = (overRef.current ?? underRef.current)?.parentElement
+    const scope = page ? document.documentElement : (overRef.current ?? underRef.current)?.parentElement
     if (!target || !scope?.contains(target) || target.closest(IGNORE_SELECTOR)) return
+    if (exclude && target.closest(exclude)) return
     if (isMelonGrabbing() || isOverMelon(e.clientX, e.clientY)) return
 
     press = { id: e.pointerId, x: e.clientX, y: e.clientY }
@@ -212,6 +237,7 @@ function createStickerBoard({ underRef, overRef, isEnabled }) {
       for (const record of [...placed, ...leaving]) {
         cancelAnimationFrame(record.raf)
         clearTimeout(record.timer)
+        clearTimeout(record.life)
         record.el.remove()
       }
       placed.length = 0
@@ -222,15 +248,19 @@ function createStickerBoard({ underRef, overRef, isEnabled }) {
 }
 
 /**
- * Click anywhere in the page's <main> (outside the watermelon and interactive
- * elements) to stick a sticker there.
+ * Click in the hero (outside the watermelon and interactive elements) to stick a
+ * sticker there, or, with `page`, anywhere else on the site.
  *
- * @param {{ underRef: React.RefObject<HTMLElement>, overRef: React.RefObject<HTMLElement>, enabled?: boolean }} options
- *   underRef / overRef: absolutely positioned layers below / above the fluid background.
+ * @param {{ underRef: React.RefObject<HTMLElement>, overRef: React.RefObject<HTMLElement>, enabled?: boolean, lifetime?: number, exclude?: string, page?: boolean }} options
+ *   underRef / overRef: absolutely positioned layers below / above the fluid background
+ *     (for the page board, both the one page-wide layer).
  *   enabled: clicks are ignored while false (e.g. during the intro).
+ *   lifetime: ms after which each sticker comes off again (0: it stays).
+ *   exclude: a selector of places that take no stickers.
+ *   page: the whole document is the board, the layer a zero-height sheet at its top-left.
  * @returns {{ clear: () => void }} `clear()` animates every sticker away.
  */
-export default function useStickers({ underRef, overRef, enabled = true } = {}) {
+export default function useStickers({ underRef, overRef, enabled = true, lifetime = 0, exclude = '', page = false } = {}) {
   const enabledRef = useRef(enabled)
   const boardRef = useRef(null)
   const [api] = useState(() => ({ clear: () => boardRef.current?.clear() }))
@@ -240,13 +270,13 @@ export default function useStickers({ underRef, overRef, enabled = true } = {}) 
   }, [enabled])
 
   useEffect(() => {
-    const board = createStickerBoard({ underRef, overRef, isEnabled: () => enabledRef.current })
+    const board = createStickerBoard({ underRef, overRef, isEnabled: () => enabledRef.current, lifetime, exclude, page })
     boardRef.current = board
     return () => {
       board.destroy()
       if (boardRef.current === board) boardRef.current = null
     }
-  }, [underRef, overRef])
+  }, [underRef, overRef, lifetime, exclude, page])
 
   return api
 }

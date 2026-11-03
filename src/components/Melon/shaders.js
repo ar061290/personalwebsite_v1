@@ -6,13 +6,13 @@
 //  Removed: floor, key shadow map, contact AO, knife, mesh overlay.
 // ─────────────────────────────────────────────────────────────
 
-// Uniform block, 76 floats (304 bytes). Offsets in floats:
+// Uniform block, 84 floats (336 bytes). Offsets in floats:
 //  0 viewProj · 16 camPos · 20 camFwd · 24 keyDir · 28 screen · 32 vp
 //  36 flesh · 40 fleshDeep · 44 pale · 48 skin · 52 stripe · 56 seed
-//  60 shape · 64 misc · 68 bg · 72 backing
-export const UBO_FLOATS = 76
+//  60 shape · 64 misc · 68 bg · 72 backing · 76 facet0 · 80 facet1
+export const UBO_FLOATS = 84
 
-const WGSL_COMMON = /* wgsl */ `
+export const WGSL_COMMON = /* wgsl */ `
 struct U {
   viewProj: mat4x4f,
   camPos: vec4f,     // xyz
@@ -30,6 +30,8 @@ struct U {
   misc: vec4f,       // exposure
   bg: vec4f,         // the studio: ambient light and reflections
   backing: vec4f,    // display-referred colour of the refraction backing
+  facet0: vec4f,     // facet sweep: l (0..1), drift clock t (s), lattice side (rest units), peak facet slope (tan)
+  facet1: vec4f,     // xyz: rest-space screen-up / body height, w: offset → a = dot(Q, xyz) + w (tip 0 → rind 1)
 };
 
 const PI = 3.14159265;
@@ -141,6 +143,128 @@ struct VOut { @builtin(position) pos: vec4f, @location(0) wp: vec3f };
 @fragment fn fs(i: VOut) -> @location(0) vec4f { return vec4f(linearDepth(i.wp), 0.0, 0.0, 1.0); }
 `
 
+// ── facet sweep (shared with the chocolate bar, barShaders.js) ──
+export const WGSL_FACET = /* wgsl */ `// ── facet sweep: kodeimmersive's sharp pyramid facets, swept tip → rind with lasmentes' front ──
+// A triangular lattice of 3-sided pyramids defined in REST space, so the facets ride the soft-body
+// deformation. Nothing is added to the mesh: the shading normal is perturbed with Mikkelsen's
+// surface gradient, using the rest → deformed map that screen derivatives of Q and P give per triangle.
+//   u.facet0: x = l (sweep progress 0..1), y = t (drift clock, s), z = p (lattice side, rest units), w = peak pyramid slope (tan)
+//   u.facet1: xyz = rest-space screen-up / body height, w = offset → a = dot(Q, xyz) + w (0 at the tip, 1 at the rind)
+const FACET_RAND = 0.9;      // tan of the random "blade" tilt right behind the leading edge (kode's spiked state)
+const FACET_ONSET = 0.0;     // 0 = lasmentes' hard onset; ~0.08 ramps each cell in instead of popping
+const FACET_SHARPEN = 0.55;  // roughness cut at full faceting: crisper softbox glints per facet
+const FACET_F0 = 0.08;       // Fresnel F0 at full faceting (jelly 0.034–0.045); spec scales with it too
+const FACET_REFRACT = 0.6;   // share of the facet tilt the refraction sees (1 = fully shattered backing)
+
+fn easeInOutCubic(x: f32) -> f32 {
+  if (x < 0.5) { return 4.0 * x * x * x; }
+  let k = 2.0 - 2.0 * x;
+  return 1.0 - 0.5 * k * k * k;
+}
+
+struct Facet {
+  dir: vec2f,     // unit uphill direction of this facet in the chart
+  c: vec2f,       // pyramid (lattice triangle) centroid in the chart, rest units
+  cellId: vec2f,  // lattice cell
+  upper: f32,     // 0 = lower triangle of the cell, 1 = upper
+  k: f32,         // facet 0..2 of the pyramid
+};
+
+// Which facet of which pyramid covers st (a 2D chart of the rest surface); lattice side p.
+// Each lattice triangle is a pyramid h = 3·min(λ) with its apex at the centroid, so the covering
+// facet is the one with the smallest barycentric λk, and it rises toward vertex k.
+fn triFacet(st: vec2f, p: f32) -> Facet {
+  let s = st / p;
+  let b = vec2f(s.x - s.y * 0.57735027, s.y * 1.1547005); // skew: lattice basis (1, 0), (1/2, √3/2)
+  let cellId = floor(b);
+  let f = b - cellId;
+  let upper = f.x + f.y > 1.0;
+  // barycentrics: lower triangle (0,0) (1,0) (0,1) · upper triangle (1,1) (0,1) (1,0)
+  let l = select(vec3f(1.0 - f.x - f.y, f.x, f.y), vec3f(f.x + f.y - 1.0, 1.0 - f.x, 1.0 - f.y), upper);
+  var k = 0.0;
+  var d = vec2f(-0.8660254, -0.5);
+  if (l.y < l.x || l.z < l.x) {
+    if (l.y <= l.z) { k = 1.0; d = vec2f(0.8660254, -0.5); } else { k = 2.0; d = vec2f(0.0, 1.0); }
+  }
+  let cb = cellId + select(vec2f(0.33333333), vec2f(0.66666667), upper);
+  var o: Facet;
+  o.dir = select(d, -d, upper);
+  o.c = vec2f(cb.x + 0.5 * cb.y, 0.8660254 * cb.y) * p;
+  o.cellId = cellId;
+  o.upper = select(0.0, 1.0, upper);
+  o.k = k;
+  return o;
+}
+
+// → (faceted shading normal, facet amount fa ∈ [0, 1]); returns (N, 0) where the front is not.
+// Call only from uniform control flow (it takes screen derivatives).
+fn facetSweep(N: vec3f, V: vec3f, P: vec3f, Q: vec3f) -> vec4f {
+  // derivatives first, before any non-uniform branch
+  let dPx = dpdxFine(P);
+  let dPy = dpdyFine(P);
+  let dQx = dpdxFine(Q);
+  let dQy = dpdyFine(Q);
+  let l = u.facet0.x;
+  let t = u.facet0.y;
+  let p = u.facet0.z;
+
+  // chart: project the rest surface onto the plane its rest normal faces most
+  // (caps → xz, rind / tip walls → xy, side walls → zy); constant per mesh triangle
+  let nr = abs(cross(dQx, dQy));
+  var chart = 0.0;
+  var st = Q.xz;
+  if (nr.y < max(nr.x, nr.z)) {
+    if (nr.x > nr.z) { chart = 1.0; st = Q.zy; } else { chart = 2.0; st = Q.xy; }
+  }
+  let fc = triFacet(st, p);
+  // pyramid centre back in rest space (the chart's off-axis coordinate comes from Q)
+  var Qc = vec3f(fc.c.x, Q.y, fc.c.y);
+  if (chart == 1.0) { Qc = vec3f(Q.x, fc.c.y, fc.c.x); } else if (chart == 2.0) { Qc = vec3f(fc.c.x, fc.c.y, Q.z); }
+
+  // lasmentes front, per pyramid: row term + two drifting value-noise octaves (0.16 and 0.9 per cell)
+  let a = clamp(dot(Qc, u.facet1.xyz) + u.facet1.w, 0.0, 1.0);
+  let fq = 1.0 / p;
+  let nv = 0.55 * a
+         + 0.33 * vnoise(Qc * (0.16 * fq) + vec3f(0.12, 0.05, -0.09) * t)
+         + 0.12 * vnoise(Qc * (0.9 * fq) + vec3f(0.0, 0.0, 0.3) * t + 11.0);
+  let pc = clamp((1.3 * l - nv) / 0.3, 0.0, 1.0);
+  if (pc <= 0.0 || pc >= 1.0) { return vec4f(N, 0.0); }
+  // lasmentes: hard onset (the solid block), then 1 − easeInOutCubic out → here: full facets, relaxing to glossy
+  var fa = 1.0 - easeInOutCubic(pc);
+  if (FACET_ONSET > 0.0) {
+    // (not smoothstep: WGSL rejects smoothstep(0, 0, x) at shader creation when the edges are constants)
+    let r = clamp(pc / max(FACET_ONSET, 1e-4), 0.0, 1.0);
+    fa *= r * r * (3.0 - 2.0 * r);
+  }
+
+  // facet slope in the chart: ordered pyramid relief, plus random blades while fa is high (kode w ≳ 0.4)
+  let fid = fc.k + 3.0 * fc.upper + 8.0 * chart;
+  let h0 = hash3(vec3f(fc.cellId, fc.upper + 2.0 * chart) + 0.5);
+  let h1 = hash3(vec3f(fc.cellId + 19.0, fid));
+  let h2 = hash3(vec3f(fc.cellId - 23.0, fid + 41.0));
+  let az = 6.2831853 * h1;
+  let G = fc.dir * (u.facet0.w * fa * (0.7 + 0.6 * h0))
+        + vec2f(cos(az), sin(az)) * (FACET_RAND * smoothstep(0.45, 1.0, fa) * (0.4 + 0.6 * h2));
+  // ∂h/∂Q, then the screen derivatives of h through the rest-space chain rule
+  var gQ = vec3f(G.x, 0.0, G.y);
+  if (chart == 1.0) { gQ = vec3f(0.0, G.y, G.x); } else if (chart == 2.0) { gQ = vec3f(G.x, G.y, 0.0); }
+  let dHx = dot(gQ, dQx);
+  let dHy = dot(gQ, dQy);
+  // Mikkelsen 2008 surface gradient on the deformed surface
+  let R1 = cross(dPy, N);
+  let R2 = cross(N, dPx);
+  let det = dot(dPx, R1);
+  if (abs(det) < 1e-20) { return vec4f(N, 0.0); }
+  var Nf = normalize(abs(det) * N - sign(det) * (dHx * R1 + dHy * R2));
+  // a facet may not turn further from the eye than the surface already does (no shading from behind)
+  let e = dot(Nf, V);
+  let eMin = min(0.08, max(dot(N, V), 0.0));
+  if (e < eMin) { Nf = normalize(Nf + V * (eMin - e)); }
+  return vec4f(Nf, fa);
+}
+
+`
+
 // ── the jelly itself ──
 export const WGSL_JELLY = WGSL_COMMON + /* wgsl */ `
 @group(0) @binding(0) var<uniform> u: U;
@@ -199,17 +323,25 @@ fn toDisplay(col: vec3f, through: vec3f, fc: vec2f) -> vec4f {
   return vec4f(clamp(o, vec3f(0.0), vec3f(a)), a);
 }
 
-@fragment fn fsJelly(i: VOut, @builtin(front_facing) ff: bool) -> @location(0) vec4f {
+` + WGSL_FACET + /* wgsl */ `@fragment fn fsJelly(i: VOut, @builtin(front_facing) ff: bool) -> @location(0) vec4f {
   var N = normalize(i.n);
   if (!ff) { N = -N; }
   let P = i.wp;
   let V = normalize(u.camPos.xyz - P);
   let L = u.keyDir.xyz;
   let key = u.keyDir.w;
+  let Q = i.rest;
+  // ── facet sweep: only while the front is on the body (uniform branch: l = 0 and l = 1 shade exactly as before) ──
+  let N0 = N;
+  var fa = 0.0;
+  if (u.facet0.x > 0.0 && u.facet0.x < 1.0) {
+    let fsw = facetSweep(N, V, P, Q);
+    N = fsw.xyz;
+    fa = fsw.w;
+  }
   let NdV = max(dot(N, V), 1e-3);
 
   // ── material regions from rest-space coordinates (they deform with the body) ──
-  let Q = i.rest;
   let Ro = u.shape.y;
   let r = length(Q.xz);
   let th = atan2(Q.x, Q.z);
@@ -252,11 +384,12 @@ fn toDisplay(col: vec3f, through: vec3f, fc: vec2f) -> vec4f {
   let sigS = -log(clamp(u.skin.rgb, vec3f(0.002), vec3f(0.99))) * 3.5 + vec3f(2.0);
   let sigma = sigF * fleshW + sigP * paleW + sigS * skinW;
   let scatK = 1.7 * fleshW + 4.5 * paleW + 26.0 * skinW;
-  let rough = mix(mix(0.1, 0.2, paleW), 0.14 + stripe * 0.04, skinW);
+  let rough = mix(mix(0.1, 0.2, paleW), 0.14 + stripe * 0.04, skinW) * (1.0 - FACET_SHARPEN * fa);
 
   // ── refraction: bend the view ray into the jelly, find where it leaves ──
   let ior = 1.42;
-  let Rr = refract(-V, N, 1.0 / ior);
+  let NR = select(N, normalize(mix(N0, N, FACET_REFRACT)), fa > 0.0);
+  let Rr = refract(-V, NR, 1.0 / ior);
   let exitP = P + Rr * min(thickBack, 0.9) * 0.55;
   var ruv = toUV(exitP);
   ruv = mix(uv, ruv, 0.85);
@@ -306,7 +439,7 @@ fn toDisplay(col: vec3f, through: vec3f, fc: vec2f) -> vec4f {
   body += vec3f(1.0, 0.85, 0.8) * spark * 0.2;
 
   // ── surface: Fresnel reflection of the studio + key highlight ──
-  let F0 = mix(0.034, 0.045, skinW);
+  let F0 = mix(mix(0.034, 0.045, skinW), FACET_F0, fa);
   let F = F0 + (1.0 - F0) * pow(1.0 - NdV, 5.0);
   let env = studioEnv(R, rough, u.bg.rgb);
   let spec = ggx(N, V, L, rough) * key * vec3f(1.0, 0.97, 0.93);

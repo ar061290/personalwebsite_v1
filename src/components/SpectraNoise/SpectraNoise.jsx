@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { getTheme, onThemeChange } from '../../lib/theme.js'
 import { CPPN_GLSL } from './cppn.js'
 import './SpectraNoise.css'
 
@@ -66,6 +67,18 @@ const COLORS = {
   uGreen: '#457C59',
 }
 
+// Dark theme: milk veils on the black sheet (faint = skim, dense = pure white),
+// kept neutral-to-cool: a warm white laid thin over black turns taupe, so no
+// cream here; the cool veils lean skim-blue instead of rind green. Milk on
+// black is louder than rose on white, so it is laid thinner.
+const COLORS_DARK = {
+  uDeep: '#FFFFFF',
+  uRose: '#F4F5F6',
+  uLight: '#DCE0E5',
+  uGreen: '#E3ECF6',
+}
+const DARK_STRENGTH = 0.6
+
 export default function SpectraNoise({
   className = '',
   speed = 1.4,
@@ -122,8 +135,12 @@ export default function SpectraNoise({
     const uTime = u('uTime')
     gl.uniform1f(u('uWarp'), warpAmount)
     gl.uniform1f(u('uNoise'), noiseIntensity)
-    gl.uniform1f(u('uStrength'), strength)
-    for (const [name, hex] of Object.entries(COLORS)) gl.uniform3fv(u(name), hexToRgb(hex))
+    const setTheme = (theme) => {
+      const dark = theme === 'dark'
+      gl.uniform1f(u('uStrength'), dark ? strength * DARK_STRENGTH : strength)
+      for (const [name, hex] of Object.entries(dark ? COLORS_DARK : COLORS)) gl.uniform3fv(u(name), hexToRgb(hex))
+    }
+    setTheme(getTheme())
 
     const resize = () => {
       const scale = Math.min(window.devicePixelRatio || 1, 2) * resolutionScale
@@ -175,9 +192,17 @@ export default function SpectraNoise({
     })
     ro.observe(canvas)
     document.addEventListener('visibilitychange', sync)
+    // Theme switch: new colours, redrawn at once (the view transition pictures
+    // the new page right after this event).
+    const offTheme = onThemeChange((theme) => {
+      if (gl.isContextLost()) return
+      setTheme(theme)
+      draw()
+    })
     draw()
 
     return () => {
+      offTheme()
       cancelAnimationFrame(raf)
       io.disconnect()
       ro.disconnect()

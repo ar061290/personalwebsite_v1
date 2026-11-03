@@ -8,6 +8,20 @@
  * uncovered top-to-bottom while the back slides off under it: a peel-down.
  */
 
+/* The page-wide layer (PageStickers.jsx): a zero-height sheet at the document's
+   top-left, so stickers placed in document coordinates scroll with the page.
+   Over the page and the footer, under the header. */
+.sticker-layer--page {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 40;
+}
+
 .stk-box {
   position: absolute;
   transform-origin: 50% 75%; /* centre of the final sticker (bottom half of the box) */
@@ -114,3 +128,26 @@
     }
   }
 }
+
+/* ── dark theme: milk-cream vinyl on black paper ──
+   Image stickers swap to src/assets/stickers/dark/ (stickerFactory.js). Greek
+   letters: dark-chocolate glyph inside a milk die-cut border. The backing paper
+   seen while peeling is a warm cream-grey; the shadow deepens to show on black. */
+html[data-theme='dark'] .stk-box {
+  filter: drop-shadow(1px 2px 2px rgba(0, 0, 0, 0.55));
+}
+
+html[data-theme='dark'] .stk__glyph {
+  fill: #3a170d;
+  stroke: #fdf6ea;
+}
+
+html[data-theme='dark'] .stk__glyph--back {
+  fill: #cfc6bc;
+  stroke: #cfc6bc;
+}
+
+html[data-theme='dark'] .stk__media--back {
+  filter: brightness(0) invert(0.8) sepia(0.18);
+}
+

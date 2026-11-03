@@ -1,0 +1,336 @@
+/* The visitor sign wall (SignWall.jsx). As tall as the footer above it (the footer sets
+   --footer-h), full width. The page's paper shows through: light paper in light, black paper
+   in dark; the paint keeps its colours in both. --sign-wall-bg overrides the background. */
+.sign-wall {
+  --sign-wall-hint: #e2e2de;
+  --sign-wall-hint-shade: #d3d3d1;
+
+  position: relative;
+  width: 100%;
+  height: var(--footer-h, 520px);
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--sign-wall-bg, transparent);
+  color: var(--ink);
+  font-family: var(--font-ui, system-ui, sans-serif);
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html[data-theme='dark'] .sign-wall {
+  --sign-wall-hint: #1d1918;
+  --sign-wall-hint-shade: #050404;
+}
+
+.sign-wall__canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none; /* drawing, not scrolling, while the finger is on the wall */
+}
+
+/* The pen's own "Drag mouse to paint.", embossed into the paper under the paint. */
+.sign-wall__hint {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 0 24px;
+  color: var(--sign-wall-hint);
+  font-size: clamp(22px, 2.4vw, 32px);
+  letter-spacing: 2px;
+  text-align: center;
+  text-shadow: 0 -1px 0 var(--sign-wall-hint-shade);
+  pointer-events: none;
+}
+
+.sign-wall__hint-touch {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .sign-wall__hint-fine {
+    display: none;
+  }
+  .sign-wall__hint-touch {
+    display: inline;
+  }
+}
+
+/* ---- names under the signatures ---- */
+.sign-wall__labels {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  pointer-events: none;
+}
+
+.sign-wall__label {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  max-width: 168px;
+  transform: translateX(-50%);
+  font-size: 11px;
+  line-height: 1.3;
+  text-align: center;
+  animation: sign-wall-label 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.sign-wall__label.is-above {
+  transform: translate(-50%, -100%);
+}
+
+.sign-wall__label-name {
+  color: var(--ink);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.sign-wall__label-date,
+.sign-wall__you {
+  color: var(--ink-soft);
+  font-weight: 400;
+}
+
+.sign-wall__label-msg {
+  color: var(--ink-soft);
+  font-style: italic;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@keyframes sign-wall-label {
+  from {
+    opacity: 0;
+    translate: 0 4px;
+  }
+}
+
+/* ---- the strip on top ---- */
+.sign-wall__bar {
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  padding: 0 clamp(16px, 3vw, 32px);
+  pointer-events: none;
+}
+
+/* On touch the strip is where the page still scrolls. */
+@media (pointer: coarse) {
+  .sign-wall__bar {
+    pointer-events: auto;
+    touch-action: pan-y;
+  }
+}
+
+.sign-wall__title {
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+}
+
+.sign-wall__count {
+  color: var(--ink-soft);
+}
+
+.sign-wall__erase {
+  pointer-events: auto;
+  padding: 6px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition:
+    color 0.2s,
+    border-color 0.2s,
+    background-color 0.2s;
+}
+
+.sign-wall__erase:hover,
+.sign-wall__erase:focus-visible {
+  color: var(--ink);
+  border-color: var(--ink-soft);
+}
+
+.sign-wall__erase.is-confirm {
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* ---- name & note ---- */
+.sign-wall__popup {
+  position: absolute;
+  z-index: 4;
+  box-sizing: border-box;
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 14px 16px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  background: var(--bg);
+  color: var(--ink);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    0 14px 34px -12px rgba(0, 0, 0, 0.22);
+  font-size: 13px;
+  -webkit-user-select: text;
+  user-select: text;
+  animation: sign-wall-pop 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+html[data-theme='dark'] .sign-wall__popup {
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.6),
+    0 18px 40px -12px rgba(0, 0, 0, 0.8);
+}
+
+@keyframes sign-wall-pop {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
+  }
+}
+
+.sign-wall__popup-title {
+  margin: 0 0 2px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.sign-wall__field {
+  display: grid;
+  gap: 2px;
+}
+
+.sign-wall__field span {
+  color: var(--ink-soft);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+.sign-wall__field input {
+  width: 100%;
+  padding: 4px 0 5px;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  border-radius: 0;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.sign-wall__field input::placeholder {
+  color: var(--ink-soft);
+  opacity: 0.6;
+}
+
+.sign-wall__field input:focus {
+  border-bottom-color: var(--ink);
+}
+
+.sign-wall__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.sign-wall__actions button {
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.sign-wall__actions button:hover,
+.sign-wall__actions button:focus-visible {
+  color: var(--ink);
+}
+
+.sign-wall__redo {
+  margin-right: auto;
+  margin-left: -10px;
+}
+
+.sign-wall__actions .sign-wall__save {
+  padding: 6px 16px;
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.sign-wall__actions .sign-wall__save:hover,
+.sign-wall__actions .sign-wall__save:focus-visible {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.sign-wall__toast {
+  position: absolute;
+  z-index: 4;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-align: center;
+  pointer-events: none;
+  animation: sign-wall-toast 2.2s ease both;
+}
+
+@keyframes sign-wall-toast {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  12%,
+  75% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sign-wall__label,
+  .sign-wall__popup {
+    animation: none;
+  }
+  .sign-wall__toast {
+    animation-timing-function: steps(1, end);
+  }
+}

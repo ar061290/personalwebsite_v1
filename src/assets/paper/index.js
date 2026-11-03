@@ -12,9 +12,13 @@
 //                   as porosity / relief. Power-of-two, so REPEAT wrapping works
 //                   even in WebGL1.
 import paperUrl from './paper.webp'
+import paperDarkUrl from './paper-dark.webp'
 import paperHeightUrl from './paper-height.png'
 
 export const PAPER_URL = paperUrl
+/** The dark theme's black sheet: the same tile and grain (same seed, same height map), shaded
+ * additively on a near-black base. Shares PAPER_HEIGHT_URL and the tiling. */
+export const PAPER_DARK_URL = paperDarkUrl
 export const PAPER_HEIGHT_URL = paperHeightUrl
 /** CSS px per tile edge (both images cover exactly one tile). */
 export const PAPER_TILE_CSS = 512
@@ -22,6 +26,8 @@ export const PAPER_TILE_CSS = 512
 export const PAPER_HEIGHT_SIZE = 512
 /** Mean colour of the tile; also the page's --bg. */
 export const PAPER_BASE = '#F6F3ED'
+/** Mean colour of the dark tile; the dark theme's --bg. */
+export const PAPER_BASE_DARK = '#100E0C'
 
 /** Document-space CSS px → tile UV in [0, 1). */
 export function paperUv(docX, docY) {
@@ -37,24 +43,35 @@ let heightPromise = null
 export function loadPaperHeight() {
   if (heightPromise) return heightPromise
   heightPromise = new Promise((resolve, reject) => {
+    const fail = (err) => {
+      heightPromise = null // let a later call retry
+      reject(err)
+    }
     const image = new Image()
+    // Keeps the pixels readable (2D getImageData, WebGL texImage2D) if the
+    // build's assets are ever served from another origin with CORS.
+    image.crossOrigin = 'anonymous'
     image.decoding = 'async'
     image.onload = () => {
-      const { naturalWidth: w, naturalHeight: h } = image
-      const c = document.createElement('canvas')
-      c.width = w
-      c.height = h
-      const ctx = c.getContext('2d', { willReadFrequently: true })
-      ctx.drawImage(image, 0, 0)
-      const rgba = ctx.getImageData(0, 0, w, h).data
-      const data = new Uint8Array(w * h)
-      for (let i = 0; i < data.length; i++) data[i] = rgba[i * 4]
-      resolve({ width: w, height: h, data, image })
+      // A throw in here (no 2D context, tainted canvas) would otherwise leave
+      // the promise pending forever.
+      try {
+        const { naturalWidth: w, naturalHeight: h } = image
+        const c = document.createElement('canvas')
+        c.width = w
+        c.height = h
+        const ctx = c.getContext('2d', { willReadFrequently: true })
+        if (!ctx) throw new Error('no 2D context')
+        ctx.drawImage(image, 0, 0)
+        const rgba = ctx.getImageData(0, 0, w, h).data
+        const data = new Uint8Array(w * h)
+        for (let i = 0; i < data.length; i++) data[i] = rgba[i * 4]
+        resolve({ width: w, height: h, data, image })
+      } catch (err) {
+        fail(new Error(`paper height map could not be read: ${err?.message ?? err}`))
+      }
     }
-    image.onerror = () => {
-      heightPromise = null
-      reject(new Error('paper height map failed to load'))
-    }
+    image.onerror = () => fail(new Error('paper height map failed to load'))
     image.src = PAPER_HEIGHT_URL
   })
   return heightPromise

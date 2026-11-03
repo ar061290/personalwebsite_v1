@@ -27,6 +27,16 @@ export const PALETTE = {
   rind: hexToRgb('#457C59'),
 }
 
+// Dark theme: milk on black paper. Same dye channels, read as whites: flesh is
+// fresh milk, deep a cool shadowed white, light pure white, and the rare
+// "rind" splat a skim-milk blue-white. No browns: the swirl stays milk.
+export const PALETTE_MILK = {
+  flesh: hexToRgb('#F4F0EA'),
+  deep: hexToRgb('#DEDDDB'),
+  light: hexToRgb('#FFFFFF'),
+  rind: hexToRgb('#E9EFF5'),
+}
+
 function getWebGLContext(canvas) {
   const params = {
     alpha: true,
@@ -538,10 +548,11 @@ export function createFluidSim(canvas, getConfig) {
     program.bind()
     gl.uniform2f(program.uniforms.texelSize, 1.0 / gl.drawingBufferWidth, 1.0 / gl.drawingBufferHeight)
     gl.uniform1i(program.uniforms.uTexture, dye.read.attach(0))
-    gl.uniform3f(program.uniforms.fleshColor, ...PALETTE.flesh)
-    gl.uniform3f(program.uniforms.deepColor, ...PALETTE.deep)
-    gl.uniform3f(program.uniforms.lightColor, ...PALETTE.light)
-    gl.uniform3f(program.uniforms.rindColor, ...PALETTE.rind)
+    const palette = config.PALETTE === 'milk' ? PALETTE_MILK : PALETTE
+    gl.uniform3f(program.uniforms.fleshColor, ...palette.flesh)
+    gl.uniform3f(program.uniforms.deepColor, ...palette.deep)
+    gl.uniform3f(program.uniforms.lightColor, ...palette.light)
+    gl.uniform3f(program.uniforms.rindColor, ...palette.rind)
     gl.uniform1f(program.uniforms.inkGain, config.INK_GAIN)
     gl.uniform1f(program.uniforms.inkMaxAlpha, config.INK_MAX_ALPHA)
     gl.uniform1f(program.uniforms.shadeAmount, config.SHADE_AMOUNT)
@@ -705,6 +716,17 @@ export function createFluidSim(canvas, getConfig) {
     pointerLeave() {
       pointer.fresh = true
       pointer.moved = false
+    },
+
+    /**
+     * Redraws the current dye with the current config right now (outside the
+     * loop), e.g. after a theme change: the dye stores densities, not colours,
+     * so the swirl on screen takes the new palette in this very frame.
+     */
+    repaint() {
+      if (destroyed || gl.isContextLost() || !active || document.hidden) return
+      if (idleTime > IDLE_SLEEP_S) return // nothing on screen
+      render()
     },
 
     randomSplats(amount) {

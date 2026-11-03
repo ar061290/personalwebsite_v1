@@ -1,4 +1,5 @@
-import { GREEK_FONT_FAMILY } from '../../assets/stickers/index.js'
+import { GREEK_FONT_FAMILY, stickerSrc } from '../../assets/stickers/index.js'
+import { getTheme, onThemeChange } from '../../lib/theme.js'
 
 // DOM builders for click-placed stickers, mirroring vegan.ning-h.com's markup:
 //
@@ -74,21 +75,40 @@ function stickerBox(front, back, width, height) {
   return { el, width, height }
 }
 
-function image(src, isBack) {
+// Theme switch: placed stickers swap to the other art in place (same size and
+// geometry, so the physics never notices). The art is preloaded and decoded
+// (useStickers.js), so the new src paints in the same frame — what the theme's
+// view transition needs. Greek stickers recolour through CSS (Stickers.css).
+let themeListening = false
+function listenForTheme() {
+  if (themeListening) return
+  themeListening = true
+  onThemeChange((theme) => {
+    for (const img of document.querySelectorAll('img.stk__media[data-src-light]')) {
+      const next = theme === 'dark' ? img.dataset.srcDark : img.dataset.srcLight
+      if (next && img.getAttribute('src') !== next) img.src = next
+    }
+  })
+}
+
+function image(sticker, isBack) {
+  listenForTheme()
   const el = document.createElement('img')
   el.className = isBack ? 'stk__media stk__media--back' : 'stk__media'
-  el.src = src
+  el.dataset.srcLight = sticker.src
+  if (sticker.srcDark) el.dataset.srcDark = sticker.srcDark
+  el.src = stickerSrc(sticker, getTheme())
   el.alt = ''
-  el.decoding = 'async'
+  el.decoding = 'sync'
   el.draggable = false
   return el
 }
 
-/** Physics sticker from the art manifest: { src, width, height } in CSS px at scale 1. */
+/** Physics sticker from the art manifest: { src, srcDark, width, height } in CSS px at scale 1. */
 export function buildImageSticker(sticker, scale) {
   const width = (sticker.width || 160) * scale
   const height = (sticker.height || 160) * scale
-  return stickerBox(image(sticker.src, false), image(sticker.src, true), width, height)
+  return stickerBox(image(sticker, false), image(sticker, true), width, height)
 }
 
 /** Greek letter as a die-cut vinyl sticker: black glyph, thick white border. */
@@ -107,6 +127,7 @@ export function buildGreekSticker(letter, scale) {
     svg.setAttribute('aria-hidden', 'true')
 
     const text = document.createElementNS(SVG_NS, 'text')
+    text.setAttribute('class', isBack ? 'stk__glyph stk__glyph--back' : 'stk__glyph')
     text.setAttribute('x', pad + metrics.left)
     text.setAttribute('y', pad + metrics.ascent)
     text.setAttribute('fill', isBack ? BACK_TONE : INK)

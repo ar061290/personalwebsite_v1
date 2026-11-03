@@ -390,7 +390,7 @@ function buildRenderMesh(I, props) {
 }
 
 // ── barycentric embedding of points into sim tets ──
-function embed(simRest, tets, verts) {
+export function embed(simRest, tets, verts) {
   const nT = tets.length / 4, nV = verts.length / 3
   const cell = 0.2
   const grid = new Map()
@@ -464,7 +464,7 @@ function embed(simRest, tets, verts) {
 }
 
 // boundary triangles of the tet mesh (each appears in exactly one tet) — used for cheap 2D hit tests
-function surfaceFaces(tets, nP) {
+export function surfaceFaces(tets, nP) {
   const count = new Map()
   const faces = [[0, 1, 2], [0, 1, 3], [0, 2, 3], [1, 2, 3]]
   for (let t = 0; t < tets.length; t += 4) {

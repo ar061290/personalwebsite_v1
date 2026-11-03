@@ -12,8 +12,15 @@
  * on a white page (see fluidSim.js / shaders.js).
  */
 import { useEffect, useRef, useState } from 'react'
-import { FLUID_DEFAULTS } from './fluidConfig.js'
+import { FLUID_DARK, FLUID_DEFAULTS } from './fluidConfig.js'
 import { createFluidSim } from './fluidSim.js'
+import { getTheme, onThemeChange } from '../../lib/theme.js'
+
+function buildConfig(theme, overrides) {
+  const config = { ...FLUID_DEFAULTS, ...(theme === 'dark' ? FLUID_DARK : null) }
+  for (const [key, value] of Object.entries(overrides)) if (value !== undefined) config[key] = value
+  return config
+}
 
 // Canvases whose context we deliberately lost on unmount; a remount on the
 // same element (StrictMode) needs a fresh <canvas> instead.
@@ -43,14 +50,27 @@ export default function FluidBackground({ className, active = true, revealSplats
   // Bumped to remount the canvas after a context loss.
   const [epoch, setEpoch] = useState(0)
 
+  const overridesRef = useRef(overrides)
+
   // Live config, read by the sim every frame (no re-init on prop changes).
   // An explicit `undefined` prop falls back to the default instead of NaN.
   useEffect(() => {
-    const config = { ...FLUID_DEFAULTS }
-    for (const [key, value] of Object.entries(overrides)) if (value !== undefined) config[key] = value
-    configRef.current = config
+    overridesRef.current = overrides
+    configRef.current = buildConfig(getTheme(), overrides)
     revealRef.current = revealSplats
   })
+
+  // Theme: swap palette (rose ink ↔ milk) and repaint at once, so the view
+  // transition's new-page picture already shows the new swirl. The blend mode
+  // (multiply ↔ screen) follows html[data-theme] in paper.css.
+  useEffect(
+    () =>
+      onThemeChange((theme) => {
+        configRef.current = buildConfig(theme, overridesRef.current)
+        simRef.current?.repaint()
+      }),
+    [],
+  )
 
   useEffect(() => {
     const canvas = canvasRef.current

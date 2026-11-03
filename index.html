@@ -3,9 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="theme-color" content="#f6f3ed" />
     <title>aadi ramnani</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script>
+      // The theme before first paint (src/lib/theme.js): the visitor's last choice, else light. The
+      // browser's own chrome takes the page's --bg (global.css; kept in sync on every change by
+      // syncThemeColor in src/lib/theme.js).
+      try {
+        if (localStorage.getItem('aadi-theme') === 'dark') {
+          document.documentElement.dataset.theme = 'dark'
+          var meta = document.querySelector('meta[name="theme-color"]')
+          if (meta) meta.content = '#100e0c'
+        }
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

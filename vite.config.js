@@ -1,9 +1,10 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// Served from GitHub Pages at https://ar061290.github.io/personalwebsite_v1/ (a project site, so
-// everything lives under the repository's name). The dev server uses the same base.
+// Where the site is served from. Vercel (https://personalwebsitev1-orpin.vercel.app) and the dev
+// server serve it at the domain's root; the GitHub Pages workflow builds it for the project path
+// /personalwebsite_v1/ by setting BASE_PATH.
 export default defineConfig({
-  base: '/personalwebsite_v1/',
+  base: process.env.BASE_PATH || '/',
   plugins: [react()],
 })

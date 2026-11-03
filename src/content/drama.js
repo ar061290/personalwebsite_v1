@@ -19,7 +19,7 @@ export default {
           when: 'Ongoing',
           links: [{ label: 'the collective’s website', href: 'https://ar061290.github.io/dramacollectivewebsite_v17/' }],
           points: [
-            'Revived theatre after the school had largely discontinued it: won approval across leadership meetings, then ran the Collective solo after both co-founders left.',
+            'Revived theatre after the school had largely discontinued it, winning approval across leadership meetings.',
             'It now has 50+ members across ~10 departments (directing, scriptwriting, publication, outreach, costume, set, sound), each with its own lead and sub-team, and is fully self-funded.',
             'Spearheading the school’s first large-scale, fully student-led production, alongside (to my knowledge) India’s first student-led theatre-centric publication, and cross-school outreach including a “mute theatre” collaboration with Project SignVerse.',
             'Built nepotism-resistant audition councils and department charters so the Collective outlasts any one cohort.',

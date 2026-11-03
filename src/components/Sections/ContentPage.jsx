@@ -25,12 +25,26 @@ function EntryLinks({ links }) {
   )
 }
 
+/** The certificate behind an award or a course: a small grey link before its year. */
+function ViewLink({ href, what }) {
+  return (
+    <a className="cpage__view" href={href} target="_blank" rel="noopener noreferrer" aria-label={`View certificate: ${what}`}>
+      view ↗
+    </a>
+  )
+}
+
 function Entry({ entry }) {
   return (
     <article className="cpage__entry">
       <header className="cpage__entry-head">
         <h3 className="cpage__entry-title">{entry.title}</h3>
-        {entry.when && <p className="cpage__when">{entry.when}</p>}
+        {(entry.when || entry.view) && (
+          <p className="cpage__when">
+            {entry.view && <ViewLink href={entry.view} what={entry.title} />}
+            {entry.when}
+          </p>
+        )}
       </header>
       {(entry.org || entry.place) && (
         <p className="cpage__org">
@@ -90,6 +104,7 @@ function Section({ section, index }) {
               <li key={item.title}>
                 <span className="cpage__list-title">{item.title}</span>
                 {item.org && <span className="cpage__list-org">{item.org}</span>}
+                <span className="cpage__list-view">{item.view && <ViewLink href={item.view} what={item.title} />}</span>
                 {item.when && <span className="cpage__list-when">{item.when}</span>}
               </li>
             ))}

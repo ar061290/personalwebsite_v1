@@ -6,6 +6,9 @@ import award2 from '../assets/academics/awards/award-2.webp'
 import award3 from '../assets/academics/awards/award-3.webp'
 import award4 from '../assets/academics/awards/award-4.webp'
 
+// Certificates live in one Drive folder per item (Aadi_Ramnani_9to12_Certificates)
+const drive = (id) => `https://drive.google.com/drive/folders/${id}`
+
 export default {
   slug: 'academics',
   number: '01',
@@ -73,28 +76,50 @@ export default {
           title: 'Outstanding Cambridge Learner Award, Top in the World (Chemistry)',
           org: 'Cambridge Assessment International Education',
           when: '2025',
+          view: drive('1ZD8eMqxVBC_FS2w_7TXYYYFChqJ8zvev'),
+        },
+        {
+          title: 'IGCSE Physics (0625) School/Grade Topper',
+          org: 'Cambridge Assessment International Education (CAIE)',
+          when: '2025',
+        },
+        {
+          title: 'Distinction in the Cambridge International Certificate of Education (ICE)',
+          org: 'Cambridge Assessment International Education',
+          when: '2025',
         },
         {
           title: 'Bronze Award',
           org: 'Singapore and Asian Schools Math Olympiad (SASMO)',
           when: '2025',
+          view: drive('1YgisH9vcMISaztv-kfYu4_xXXCcaN4wS'),
         },
         {
-          title: 'Selective summer programs',
-          note: 'Summer Science Program (SSP) · VTSP',
+          title: 'First Place, Outstanding Exploration and Integration of a Significant Global Scientific Issue',
+          org: 'IBDP Collaborative Science Project',
+          when: '2026',
+          view: drive('1ZurwY_YKEToRxK-LnsjE77KpYTnsqfRB'),
+        },
+        {
+          title: 'Venture and Tech Summer Program (VTSP)',
+          when: '2026',
+        },
+        {
+          title: 'Summer Science Program (SSP)',
+          when: '2026',
         },
       ],
     },
     {
       heading: 'certifications',
       list: [
-        { title: 'Data Science & AI', org: 'IIT Madras', when: '2026' },
-        { title: 'Quantum Computing', org: 'IIT Hyderabad', when: '2025' },
-        { title: 'Software Development', org: 'IIT Hyderabad', when: '2025' },
+        { title: 'Data Science & AI', org: 'IIT Madras', when: '2026', view: drive('1apkRurMOjefdG6gd-_BdNzgQNXXB7qey') },
+        { title: 'Quantum Computing', org: 'IIT Hyderabad', when: '2025', view: drive('1wlAzTNDPAhBs1M1rUukQ38yCbJ3i_V4B') },
+        { title: 'Software Development', org: 'IIT Hyderabad', when: '2025', view: drive('18EbeL_iCiHz2r0hO1V9BRuvnmKfbP1ms') },
         { title: 'Premier Aerodynamics', org: 'F1 in Schools', when: '2025' },
-        { title: 'Software Engineering · Intro to AI · Generative AI · Prompt Engineering · HTML/CSS/JS', org: 'IBM / Coursera', when: '2025' },
-        { title: 'Industry & Innovation', org: 'T-HUB', when: '2024' },
-        { title: 'Technology & Sustainability', org: 'IBM', when: '2023' },
+        { title: 'Software Engineering · Intro to AI · Generative AI · Prompt Engineering · HTML/CSS/JS', org: 'IBM / Coursera', when: '2025', view: drive('1u0-C-5vtiqnDVVR8alVzEc3taQxHF1m8') },
+        { title: 'Industry & Innovation', org: 'T-HUB', when: '2024', view: drive('1tTd1efzG4mJlx-Pk-newZ8ojc-2SP5jV') },
+        { title: 'Technology & Sustainability', org: 'Infosys', when: '2023', view: drive('1xoygF82hrqNRhnimi95MyJg19jwK1gbG') },
       ],
     },
   ],

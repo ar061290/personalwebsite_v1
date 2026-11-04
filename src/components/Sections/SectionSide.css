@@ -12,7 +12,7 @@
 }
 
 .side-sticker {
-  width: clamp(84px, 9vw, 128px);
+  width: var(--w, clamp(84px, 9vw, 128px));
   transform: rotate(var(--tilt)) scale(0);
   opacity: 0;
   /* the white border: the art's own outline grown by four hard white shadows,
@@ -49,6 +49,22 @@
   -webkit-user-drag: none;
 }
 
+/* in rows (LogoStickers' `wrap`): scattered two or three to a row, each at its own size */
+.side-stickers--wrap {
+  flex-flow: row wrap;
+  align-items: center;
+  gap: 18px 16px;
+  max-width: 330px;
+}
+
+.side-stickers--wrap .side-sticker:nth-child(even) {
+  margin-left: 0;
+}
+
+.side-stickers--wrap .side-sticker:nth-child(3n + 2) {
+  margin-top: 14px;
+}
+
 html[data-theme='dark'] .side-sticker {
   filter: drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff)
     drop-shadow(0 -3px 0 #fff) drop-shadow(1px 4px 6px rgba(0, 0, 0, 0.6));
@@ -60,6 +76,8 @@ html[data-theme='dark'] .side-sticker {
    the entry is ContentPage.css's business. */
 .entry-sticker {
   margin: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
   filter: drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) drop-shadow(0 2px 0 #fff)
     drop-shadow(0 -2px 0 #fff) drop-shadow(2px 5px 7px rgba(0, 0, 0, 0.2));
 }
@@ -80,6 +98,15 @@ html[data-theme='dark'] .side-sticker {
 .entry-sticker.is-in img {
   transform: rotate(var(--tilt)) scale(1);
   opacity: 1;
+}
+
+.entry-sticker:focus-visible {
+  outline: none;
+}
+
+.entry-sticker:focus-visible img {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
 }
 
 .entry-sticker.is-in:hover img {
@@ -104,14 +131,32 @@ html[data-theme='dark'] .entry-sticker {
   transform: rotate(-1.5deg);
 }
 
+/* (also registered by ScrapPhoto.css; here too, for pages that never load it) */
+@property --lerp {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+/* Lerp, as on the homepage's photo (ScrapPhoto.css): the picture's corners pull in with scroll speed,
+   and with the mouse moving up and down across it (useScrollLerp writes --lerp), and it zooms a
+   little. */
 .side-slides__frame {
   position: relative;
   aspect-ratio: 6 / 5;
   overflow: hidden;
   background: #e9e6df;
+  transform: translateZ(0);
+  clip-path: polygon(
+    max(calc(var(--lerp) * 0.25%), 0%) max(calc(var(--lerp) * 0.25%), 0%),
+    min(calc(100% - var(--lerp) * -0.25%), 100%) max(calc(var(--lerp) * -0.25%), 0%),
+    min(calc(100% - var(--lerp) * 0.25%), 100%) min(calc(100% - var(--lerp) * 0.25%), 100%),
+    max(calc(var(--lerp) * -0.25%), 0%) min(calc(100% - var(--lerp) * -0.25%), 100%)
+  );
 }
 
 .side-slides__img {
+  scale: calc(1 + min((var(--lerp) * var(--lerp) * 0.0001), 1));
   position: absolute;
   inset: 0;
   width: 100%;

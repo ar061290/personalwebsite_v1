@@ -383,8 +383,10 @@
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* is-lit: pointed out by a press on the entry's sticker (EntrySticker), the same as a hover */
 .cpage__site a:hover,
-.cpage__site a:focus-visible {
+.cpage__site a:focus-visible,
+.cpage__site a.is-lit {
   background-size: 100% 100%;
   color: var(--accent-ink);
   text-decoration-color: transparent;
@@ -392,8 +394,16 @@
 }
 
 .cpage__site a:hover .cpage__site-arrow,
-.cpage__site a:focus-visible .cpage__site-arrow {
+.cpage__site a:focus-visible .cpage__site-arrow,
+.cpage__site a.is-lit .cpage__site-arrow {
   transform: translate(2px, -2px);
+}
+
+/* a page of this site: its arrow points on, and moves on */
+.cpage__site a:hover .cpage__site-arrow--on,
+.cpage__site a:focus-visible .cpage__site-arrow--on,
+.cpage__site a.is-lit .cpage__site-arrow--on {
+  transform: translateX(3px);
 }
 
 /* said to screen readers, not shown */
@@ -441,8 +451,9 @@
 /* an aside below the label (the first row) hangs where a section's own side items do; one on a later
    row starts level with its entry's title */
 .cpage__row-stick > .entry-sticker {
-  width: var(--sticker-w, clamp(100px, 10vw, 156px)); /* a sticker may ask for its own (sticker.width) */
-  margin: 30px 0 0 clamp(4px, 2vw, 30px);
+  /* a sticker may ask for its own width (sticker.width) and how far in it sits (sticker.shift) */
+  width: var(--sticker-w, clamp(100px, 10vw, 156px));
+  margin: 30px 0 0 var(--sticker-x, clamp(4px, 2vw, 30px));
 }
 
 .cpage__row-stick > .entry-sticker:first-child {
@@ -547,8 +558,9 @@
 }
 
 @media (max-width: 860px) {
+  /* minmax(0, …): a column no wider than the screen (the grades' grid would hold a 1fr open to 754px) */
   .cpage__section {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .cpage__section-side {
@@ -570,7 +582,7 @@
 
   /* rows: each aside just above its own entry, 24px off it like the label's side items */
   .cpage__row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     row-gap: 24px;
   }
 

@@ -1,0 +1,218 @@
+/* The certificates' viewer (CertViewer.jsx). The dialog, its veil, top bar and close button are the
+   documents' viewer's (DocViewer.css: .docview, .docview__*); this is the grid of certificates, every
+   cell the same size (the width of one in the fullest row, the height of one row), the pictures fitted
+   inside them, together filling what the screen leaves under the top bar; and the speaker view, one
+   brought forward with the others in a column beside it. */
+.docview--certs .docview__frame {
+  width: min(100%, 1680px);
+}
+
+/* In: the veil fades in while the whole panel fades up 14px into place, from a hair smaller (0.4s,
+   a quick start and a long settle). Out (CertViewer adds .is-closing, then closes when it ends): the
+   same, reversed and quicker. These replace the documents' viewer's own entrance. */
+.docview--certs[open] {
+  animation: certs-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.docview--certs[open]::backdrop {
+  animation: certs-veil-in 0.3s ease-out both;
+}
+
+.docview--certs.is-closing {
+  animation: certs-out 0.26s cubic-bezier(0.4, 0, 1, 1) forwards;
+  pointer-events: none;
+}
+
+.docview--certs.is-closing::backdrop {
+  animation: certs-veil-out 0.3s ease-in forwards;
+}
+
+@keyframes certs-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.99);
+  }
+}
+
+@keyframes certs-out {
+  to {
+    opacity: 0;
+    transform: translateY(14px) scale(0.99);
+  }
+}
+
+@keyframes certs-veil-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes certs-veil-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .docview--certs[open],
+  .docview--certs[open]::backdrop {
+    animation: none;
+  }
+}
+
+.certs {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+  padding-bottom: 6px;
+}
+
+.certs__row {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  gap: 14px;
+  min-height: 0;
+}
+
+.certs__cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc((100% - (var(--per-row) - 1) * 14px) / var(--per-row));
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+}
+
+.certs__cell img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 3px;
+  background: #fff;
+  box-shadow: 0 12px 34px -12px rgba(0, 0, 0, 0.7);
+  object-fit: contain;
+  user-select: none;
+  transform-origin: 50% 50%;
+}
+
+/* with several, a certificate invites a press: bring it forward (or, the big one, send it back) */
+html.has-custom-cursor .docview--certs .certs.is-many img {
+  cursor: zoom-in !important;
+}
+
+html.has-custom-cursor .docview--certs .certs__cell.is-focus img {
+  cursor: zoom-out !important;
+}
+
+.certs.is-many img {
+  cursor: zoom-in;
+  transition: box-shadow 0.25s ease;
+}
+
+.certs.is-many img:hover {
+  box-shadow:
+    0 0 0 2px var(--accent),
+    0 12px 34px -12px rgba(0, 0, 0, 0.7);
+}
+
+/* The speaker view: the one brought forward fills most of the screen; the others line up in a column
+   at its side, each the column's width (a fifth of the screen) and an equal share of its height. */
+.certs--speaker {
+  flex-direction: row;
+}
+
+.certs__main {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+.certs__main .certs__cell {
+  width: 100%;
+}
+
+.certs__main .certs__cell img {
+  cursor: zoom-out;
+}
+
+.certs__side {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: 12px;
+  width: clamp(150px, 19%, 300px);
+  min-height: 0;
+}
+
+.certs__side .certs__cell {
+  flex: 1;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+}
+
+.certs__side .certs__cell img {
+  opacity: 0.82;
+  transition:
+    opacity 0.2s ease,
+    box-shadow 0.25s ease;
+}
+
+.certs__side .certs__cell img:hover {
+  opacity: 1;
+}
+
+/* the button by the year: the old link's look, as a button, with a bigger target than its small word
+   (an invisible pad around it, like the header's links: half the 18px gap to the year on the right,
+   most of the row's height above and below) */
+.cpage__view {
+  position: relative;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  line-height: inherit;
+  cursor: pointer;
+}
+
+.cpage__view::after {
+  content: '';
+  position: absolute;
+  inset: -14px -9px -14px -14px;
+}
+
+/* Phones: one under another, each the screen's width, scrolled (no speaker view). */
+@media (max-width: 640px) {
+  .certs {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .certs__row {
+    flex: none;
+    flex-direction: column;
+  }
+
+  .certs__cell {
+    width: 100%;
+    height: auto;
+  }
+
+  .certs__cell img {
+    width: 100%;
+    max-height: none;
+  }
+
+  html.has-custom-cursor .docview--certs .certs.is-many img,
+  .certs.is-many img {
+    cursor: auto !important;
+  }
+
+  .certs.is-many img:hover {
+    box-shadow: 0 12px 34px -12px rgba(0, 0, 0, 0.7);
+  }
+}

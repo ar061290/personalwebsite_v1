@@ -15,7 +15,7 @@ const MAX_STICKERS = 16
 const RECENT_MEMORY = 4 // a sticker is not repeated within the last four picks
 const TAP_SLOP = 6 // px the pointer may travel between press and release
 const IGNORE_SELECTOR =
-  'a, button, .site-header, input, textarea, select, label, [contenteditable], [data-no-sticker]'
+  'a, button, .site-header, input, textarea, select, label, [contenteditable], [data-no-sticker], dialog'
 
 const random = (min, max) => Math.random() * (max - min) + min
 
@@ -172,6 +172,9 @@ function createStickerBoard({ underRef, overRef, isEnabled, lifetime = 0, exclud
   function onPointerDown(e) {
     press = null
     if (!isEnabled() || !e.isPrimary || e.button !== 0 || e.ctrlKey || e.metaKey) return
+    // a popup over the page (a certificate, a document, the video, the message form) takes no stickers,
+    // and neither does the press that closes it
+    if (document.querySelector('dialog[open]')) return
 
     const target = e.target instanceof Element ? e.target : null
     const scope = page ? document.documentElement : (overRef.current ?? underRef.current)?.parentElement

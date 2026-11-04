@@ -4,10 +4,14 @@ import { useEffect } from 'react'
 // That is what StringTune's StringLerp exposes (its smooth scroller steps by
 // (target − current) × 0.09 a frame). Like StringTune, it only runs on desktop
 // (fine pointer) and not with reduced motion; elsewhere --lerp stays 0.
+// With `pointer`, the mouse moving up and down over the element counts as well: its
+// vertical speed adds to the scroll's (down like scrolling down), so the same shear
+// follows the cursor across it.
 const FOLLOW = 0.18 // fraction of the gap to the current speed closed per 60 Hz frame
 const REST = 0.02
+const POINTER_GAIN = 0.9 // a px the mouse moves down counts as this many px scrolled
 
-export default function useScrollLerp(ref) {
+export default function useScrollLerp(ref, { pointer = false } = {}) {
   useEffect(() => {
     const el = ref.current
     if (!el) return undefined
@@ -21,6 +25,7 @@ export default function useScrollLerp(ref) {
     let shown = 0
     let lastY = window.scrollY
     let lastT = performance.now()
+    let pointerDy = 0 // px the mouse has moved down over the element since the last frame
 
     const write = (v) => {
       if (Math.abs(v - shown) < 0.01) return
@@ -31,8 +36,9 @@ export default function useScrollLerp(ref) {
     const frame = (now) => {
       const frames = Math.max(0.25, (now - lastT) / (1000 / 60))
       const y = window.scrollY
-      const velocity = (y - lastY) / frames
+      const velocity = (y - lastY + pointerDy * POINTER_GAIN) / frames
       lastY = y
+      pointerDy = 0
       lastT = now
       lerp += (velocity - lerp) * (1 - Math.pow(1 - FOLLOW, frames))
       if (Math.abs(lerp) < REST && velocity === 0) {
@@ -67,11 +73,30 @@ export default function useScrollLerp(ref) {
     }
     window.addEventListener('scroll', onScroll, { passive: true })
 
+    let lastPointerY = null
+    const onPointerMove = (e) => {
+      if (e.pointerType !== 'mouse') return
+      if (lastPointerY !== null) {
+        pointerDy += e.clientY - lastPointerY
+        onScroll()
+      }
+      lastPointerY = e.clientY
+    }
+    const onPointerLeave = () => {
+      lastPointerY = null
+    }
+    if (pointer) {
+      el.addEventListener('pointermove', onPointerMove, { passive: true })
+      el.addEventListener('pointerleave', onPointerLeave)
+    }
+
     return () => {
       io.disconnect()
       window.removeEventListener('scroll', onScroll)
+      el.removeEventListener('pointermove', onPointerMove)
+      el.removeEventListener('pointerleave', onPointerLeave)
       cancelAnimationFrame(raf)
       el.style.removeProperty('--lerp')
     }
-  }, [ref])
+  }, [ref, pointer])
 }

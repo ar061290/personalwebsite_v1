@@ -155,13 +155,7 @@ html[data-theme='dark'] .side-video__print {
 
 /* ── the player ── */
 
-/* the page stays put under it, its scrollbar's place kept (so nothing shifts) and painted the veil's
-   colour (the veil, fixed to the viewport, stops short of it) */
-html.vplayer-lock {
-  overflow: hidden;
-  scrollbar-gutter: stable;
-  background-color: color-mix(in srgb, #0a0807 88%, var(--paper-base));
-}
+/* the page stays put under it (src/lib/scrollLock.js), its scrollbar left alone, so nothing shifts */
 
 /* The dialog covers the screen; the dim veil is its ::backdrop, and a press on the dialog itself
    (around the player) closes it. Not shown at all until open (the browser's own rule). */

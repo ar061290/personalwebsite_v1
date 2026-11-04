@@ -38,8 +38,8 @@ export default {
           ],
         },
         {
-          title: 'Premier Aerodynamics',
-          org: 'F1 in Schools',
+          title: 'F1 in Schools',
+          org: 'Premier Aerodynamics',
           when: '2025',
           note: 'Certification.',
         },

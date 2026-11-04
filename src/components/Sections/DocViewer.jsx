@@ -9,6 +9,7 @@
 // dimmed and inert, and the ×, Escape and a press on the dim area around it close it.
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { TABLES } from '../../content/cspDeck.js'
+import { holdPage, releasePage } from '../../lib/scrollLock.js'
 import './DocViewer.css'
 
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v))
@@ -52,11 +53,11 @@ const FullscreenIcon = ({ on }) => (
 export default function DocLinks({ docs }) {
   if (!docs?.length) return null
   return (
-    <p className="docs">
+    <div className="docs">
       {docs.map((doc) => (
         <DocLink key={doc.label} doc={doc} />
       ))}
-    </p>
+    </div>
   )
 }
 
@@ -73,19 +74,19 @@ function DocLink({ doc }) {
     if (!dialog || dialog.open) return
     dialog.showModal()
     setOpen(true)
-    document.documentElement.classList.add('docview-lock')
+    holdPage(dialogRef)
   }
   const close = () => dialogRef.current?.close()
   const onClose = () => {
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {})
     setOpen(false)
-    document.documentElement.classList.remove('docview-lock')
+    releasePage(dialogRef)
     linkRef.current?.focus({ preventScroll: true })
   }
   // leaving the page with it open (the back button): let the page scroll again
   useEffect(() => {
     if (!open) return undefined
-    return () => document.documentElement.classList.remove('docview-lock')
+    return () => releasePage(dialogRef)
   }, [open])
 
   return (

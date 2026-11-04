@@ -8,6 +8,7 @@
 // Racing line is the ashwa page's own (src/content/ashwa.js), cut down.
 import videoCover from '../assets/research/oxide-video-cover.webp'
 import rockoon from '../assets/research/rockoon.webp'
+import ashwaLogo from '../assets/research/ashwa-logo.webp'
 import cspGraph from '../assets/research/csp-cooling-graph.webp'
 // the CSP paper's pages (rendered from the preprint PDF in public/docs/) and the team's presentation
 import { cspDeck } from './cspDeck.js'
@@ -147,8 +148,17 @@ export default {
           title: 'Chief Aerodynamicist & Design Engineer, Ashwa Racing',
           org: 'STEM Racing / F1 in Schools · CO2-powered car',
           when: 'Sept 2025 – present',
+          // the team's badge, die-cut, in the left column under the section's label
+          aside: {
+            sticker: {
+              src: ashwaLogo,
+              alt: 'Sticker of the Ashwa Racing badge: a horse’s head curling into the S of ASHWA, over a chariot wheel, on maroon',
+              tilt: 6,
+              shift: 'clamp(30px, 8vw, 120px)', // further into the column than the label above it
+            },
+          },
           note: 'Designed the car and validated it in CFD across 3+ solvers: 2nd runner-up of 100+ teams at the South India Regionals, then 6th at Nationals.',
-          links: [{ label: 'more on the ashwa page', to: '/ashwa' }],
+          site: { label: 'more on the ashwa page', to: '/ashwa' },
         },
         {
           title: 'Machine Learning Intern',

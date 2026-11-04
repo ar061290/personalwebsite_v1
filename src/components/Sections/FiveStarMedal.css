@@ -43,6 +43,30 @@
   filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.16));
 }
 
+/* the bar, its own layer (so it can leave the ribbon): frame 1's bar (FiveStarFeast), upright, where the
+   original picture's bar hung */
+.fivestar__bar-img {
+  position: absolute;
+  left: 33.01%;
+  top: 59.8%;
+  width: 34.84%;
+  height: 40.2%;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.16));
+  transition: opacity 0.35s ease;
+}
+
+/* while it is being eaten it is not on its ribbon; it comes back as the scene fades */
+.fivestar.is-eating .fivestar__bar-img {
+  opacity: 0;
+  transition: none;
+}
+
+.fivestar.is-eating .fivestar__note {
+  visibility: hidden;
+}
+
 /* the wrapped bar, as a share of the picture (measured from the cut-out) */
 .fivestar__bar {
   position: absolute;
@@ -113,13 +137,13 @@
   }
 }
 
-/* Phones: smaller, tucked further right, so it hangs beside the page's text
-   rather than over it; the note opens above the bar instead of beside it. */
+/* Phones: smaller, tucked against the right edge (not past it, or the page would scroll sideways), so
+   it hangs beside the page's text rather than over it; the note opens above the bar instead of beside it. */
 @media (max-width: 720px) {
   .fivestar {
     --w: 30vw;
     top: calc(var(--header-h) + 4vh);
-    right: -2vw;
+    right: 0;
   }
 
   .fivestar__note {

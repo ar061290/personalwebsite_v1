@@ -6,10 +6,11 @@ import './ScrapPhoto.css'
 // A taped print whose picture reveals from its centre each time it scrolls into
 // view (StringTune "reveal on scroll", repeat on) and shears with scroll speed
 // (StringTune "lerp"): the print stays still while the picture shifts inside it.
+// Moving the mouse up and down across the picture shears it the same way.
 export default function ScrapPhoto({ src, alt, width, height, className = '' }) {
   const rootRef = useRef(null)
   const windowRef = useRef(null)
-  useScrollLerp(windowRef)
+  useScrollLerp(windowRef, { pointer: true })
 
   useEffect(() => {
     const root = rootRef.current

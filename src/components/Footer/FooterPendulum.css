@@ -1,0 +1,64 @@
+/* The footer's centre figure (FooterPendulum.jsx). The slot repaints the page's paper tile (the same
+   512px tile as html in paper.css; FooterPendulum lines it up with the document's) and is its own
+   isolated group, so the figure, which paints an opaque paper colour, can blend that colour away:
+   white multiplied onto the light sheet, black screened onto the dark one, leaving its ink and
+   colours on real paper. Its opacity is the hand-off from the cursor's sprite (set per frame). */
+.footer-pendulum {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  isolation: isolate;
+  background: var(--paper-base) var(--paper-tile) 0 0 / 512px 512px repeat;
+  opacity: 0;
+}
+
+.footer-pendulum__figure {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.footer-pendulum__figure[hidden] {
+  display: none;
+}
+
+melon-pendulum.footer-pendulum__figure {
+  --melon-paper: #ffffff;
+  --melon-ink: var(--ink);
+  mix-blend-mode: multiply;
+}
+
+kinder-pendulum.footer-pendulum__figure {
+  --kinder-paper: #000000;
+  --kinder-ink: var(--ink);
+  --kinder-shade: #5a534c;
+  --kinder-accent: var(--accent);
+  mix-blend-mode: screen;
+}
+
+/* the box is the slot's, not the element's own 240px minimum */
+.footer-pendulum__figure::part(stage) {
+  min-height: 0;
+}
+
+/* The mini slice/bar sliding down the homepage into the figure (FooterPendulum.jsx): a fixed layer
+   over the page, its box's origin on the sprite's point, so it turns and scales about that point. */
+.footer-pendulum__mini {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.footer-pendulum__mini img {
+  position: absolute;
+  max-width: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}

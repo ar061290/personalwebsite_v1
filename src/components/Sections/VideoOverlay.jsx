@@ -16,6 +16,7 @@
 // site's own cursor is drawn under the page's top layer, so the player shows the system's pointer.
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { holdMusic } from '../Music/music.js'
+import { holdPage, releasePage } from '../../lib/scrollLock.js'
 import './VideoOverlay.css'
 
 const SPEEDS = [0.75, 1, 1.25, 1.5, 2]
@@ -252,7 +253,7 @@ export default function VideoCard({ video }) {
     if (!open) return undefined
     return () => {
       holdMusic(false)
-      document.documentElement.classList.remove('vplayer-lock')
+      releasePage(dialogRef)
     }
   }, [open])
 
@@ -329,7 +330,7 @@ export default function VideoCard({ video }) {
     dialog.showModal()
     setOpen(true)
     holdMusic(true)
-    document.documentElement.classList.add('vplayer-lock')
+    holdPage(dialogRef)
     playRef.current?.focus({ preventScroll: true })
     togglePlay()
   }
@@ -341,7 +342,7 @@ export default function VideoCard({ video }) {
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {})
     setOpen(false)
     holdMusic(false)
-    document.documentElement.classList.remove('vplayer-lock')
+    releasePage(dialogRef)
     cardRef.current?.focus({ preventScroll: true })
   }
 

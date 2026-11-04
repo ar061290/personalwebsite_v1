@@ -3,14 +3,42 @@
   z-index: var(--z-page);
   color: var(--ink);
   border-top: 1px solid var(--rule, rgba(12, 12, 12, 0.14));
-  padding-top: clamp(56px, 9vw, 120px);
+  padding-top: clamp(40px, 5vw, 72px);
+  /* the header's 'contact' jumps here: land below the fixed header */
+  scroll-margin-top: var(--header-h);
 }
 
+/* Contact on the left, the pendulum figure big in the middle (equal side tracks keep it on the page's
+   centre line, under the header's googly eyes), the two lists on the right; both sides drawn in
+   towards the figure. */
 .site-footer__top {
+  /* as big as leaves the two sides room for their widest lines (about 760px between them) */
+  --fig-w: clamp(420px, min(42vw, 100vw - 760px), 680px);
   display: grid;
-  grid-template-columns: minmax(0, 6fr) minmax(0, 3fr) minmax(0, 2fr);
-  gap: 48px clamp(24px, 4vw, 64px);
-  padding: 0 clamp(16px, 6vw, 96px) clamp(56px, 8vw, 110px);
+  grid-template-columns: minmax(0, 1fr) var(--fig-w) minmax(0, 1fr);
+  grid-template-areas: 'lead fig lists';
+  align-items: center;
+  gap: 40px clamp(20px, 2.5vw, 40px);
+  padding: 0 clamp(16px, 4vw, 64px) clamp(40px, 5vw, 72px);
+}
+
+.site-footer__lead {
+  grid-area: lead;
+  justify-self: center;
+  min-width: 0;
+}
+
+.site-footer__figure {
+  grid-area: fig;
+  min-width: 0;
+}
+
+.site-footer__lists {
+  grid-area: lists;
+  justify-self: center;
+  display: flex;
+  gap: clamp(20px, 2vw, 32px);
+  min-width: 0;
 }
 
 .site-footer__kicker {
@@ -23,7 +51,7 @@
 
 .site-footer__line {
   margin: 0 0 18px;
-  font-size: clamp(40px, 6vw, 88px);
+  font-size: clamp(32px, 3.6vw, 56px);
   font-weight: 800;
   font-stretch: 125%;
   line-height: 0.95;
@@ -48,6 +76,7 @@
 
 .site-footer__col a {
   display: inline-block;
+  white-space: nowrap;
   font-size: 15px;
   letter-spacing: 0.02em;
   padding: 2px 0;
@@ -58,7 +87,7 @@
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 8px 24px;
-  padding: 18px clamp(16px, 6vw, 96px) 28px;
+  padding: 16px clamp(16px, 4vw, 64px) 24px;
   font-size: 12px;
   letter-spacing: 0.04em;
   color: var(--ink-soft, rgba(12, 12, 12, 0.58));
@@ -75,13 +104,33 @@
   line-height: 1.4;
 }
 
-@media (max-width: 900px) {
+/* Below this the lists no longer fit beside a figure of the smallest useful size: the figure takes
+   a row of its own above, contact and the lists share the one below. */
+@media (max-width: 1180px) {
   .site-footer__top {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: 'fig fig' 'lead lists';
   }
 
-  .site-footer__lead {
-    grid-column: 1 / -1;
+  .site-footer__figure {
+    justify-self: center;
+    width: min(100%, 680px);
+  }
+}
+
+/* Phones: one column, the figure between contact and the lists. */
+@media (max-width: 640px) {
+  .site-footer__top {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'lead' 'fig' 'lists';
+    row-gap: 32px;
+  }
+
+  .site-footer__lists {
+    justify-self: stretch;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
   }
 }
 

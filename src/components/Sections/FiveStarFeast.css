@@ -1,0 +1,418 @@
+/* The 5 Star's stop motion (FiveStarFeast.jsx): a clear layer over the whole page (it takes the presses,
+   until it has gone; the page shows through around the cut-out frames), under the site's cursor. */
+.feast {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  outline: none;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.feast__stage {
+  position: absolute;
+}
+
+/* every frame laid in place; only the current one shows: a cut from one to the next, never a fade */
+.feast__frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.feast__frame.is-on {
+  visibility: visible;
+}
+
+/* the last frame's star pops as it lands (about the star, at 54% 50% of the picture) */
+.feast__frame--star.is-on {
+  transform-origin: 54.1% 49.8%;
+  animation: feast-star-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes feast-star-pop {
+  from {
+    transform: scale(0.86);
+  }
+  to {
+    transform: none;
+  }
+}
+
+/* ... and golden dashes shoot out of it, and sparkles are thrown further, turning as they go */
+.feast__burst {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.feast__ray,
+.feast__spark,
+.feast__ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.feast__ring {
+  width: calc(var(--r1) * 2);
+  height: calc(var(--r1) * 2);
+  margin: calc(var(--r1) * -1) 0 0 calc(var(--r1) * -1);
+  border: 3px solid #fec41a;
+  border-radius: 50%;
+  animation: feast-ring 0.75s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+@keyframes feast-ring {
+  from {
+    opacity: 0.9;
+    transform: scale(0.3);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+.feast__ray {
+  width: var(--len);
+  height: calc(var(--len) * 0.3);
+  margin-top: calc(var(--len) * -0.15);
+  border-radius: 999px;
+  background: #fec41a;
+  transform-origin: 0 50%;
+  animation: feast-ray 0.9s cubic-bezier(0.16, 1, 0.3, 1) var(--delay) both;
+}
+
+@keyframes feast-ray {
+  from {
+    opacity: 0;
+    transform: rotate(var(--a)) translateX(var(--r0)) scaleX(0.2);
+  }
+  18% {
+    opacity: 1;
+    transform: rotate(var(--a)) translateX(calc(var(--r0) * 1.08)) scaleX(1);
+  }
+  to {
+    opacity: 0;
+    transform: rotate(var(--a)) translateX(var(--r1)) scaleX(0.35);
+  }
+}
+
+.feast__spark {
+  width: var(--size);
+  height: var(--size);
+  margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
+  overflow: visible;
+  fill: #fec41a;
+  animation: feast-spark 1.15s cubic-bezier(0.2, 0.8, 0.3, 1) var(--delay) both;
+}
+
+.feast__spark:nth-child(3n) {
+  fill: #ffe07a;
+}
+
+@keyframes feast-spark {
+  from {
+    opacity: 0;
+    transform: rotate(var(--a)) translateX(var(--r0)) rotate(calc(var(--a) * -1)) scale(0) rotate(0deg);
+  }
+  30% {
+    opacity: 1;
+    transform: rotate(var(--a)) translateX(calc((var(--r0) + var(--r1)) / 2)) rotate(calc(var(--a) * -1)) scale(1)
+      rotate(calc(var(--spin) * 0.4));
+  }
+  to {
+    opacity: 0;
+    transform: rotate(var(--a)) translateX(var(--r1)) rotate(calc(var(--a) * -1)) scale(0.3) rotate(var(--spin));
+  }
+}
+
+/* the bar on its way from the ribbon: hanging as it was, then turning to lie as frame 1's does, its
+   shadow on the page (FiveStarMedal.css) fading, as frame 1 has none */
+.feast__flying {
+  position: fixed;
+  top: 0;
+  left: 0;
+  max-width: none;
+  margin: 0;
+  translate: -50% -50%;
+  transform: var(--fly-to);
+  animation: feast-fly var(--fly-ms) cubic-bezier(0.16, 1, 0.3, 1) both;
+  pointer-events: none;
+}
+
+@keyframes feast-fly {
+  from {
+    transform: var(--fly-from);
+    filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.16));
+  }
+  to {
+    filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0));
+  }
+}
+
+/* The words: beside the bar, level with it (under it where the screen is narrow), at twice the size
+   of the cursor's, in its letters, ringed in the page's colour so they read over whatever is behind
+   them (the page's big title, its figures). A new word rises into place; at the end, none. */
+.feast__words {
+  position: absolute;
+  margin: 0;
+  color: var(--ink);
+  text-shadow:
+    0 0 1px var(--bg),
+    0 0 2px var(--bg),
+    0 0 3px var(--bg),
+    0 0 6px var(--bg),
+    0 0 12px var(--bg);
+  font-family: var(--font-ui);
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  translate: 0 -50%;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.feast__words--under {
+  translate: -50% 0;
+}
+
+.feast__words span {
+  display: block;
+  animation: feast-word-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes feast-word-in {
+  from {
+    opacity: 0;
+    transform: translateY(45%);
+  }
+}
+
+.feast__words.is-quiet {
+  opacity: 0;
+}
+
+/* the ×: at the stage's top right, kept below the site's header (whose controls show through) */
+.feast__close {
+  position: absolute;
+  top: max(calc(var(--header-h, 64px) + 12px), calc(var(--stage-top) - 56px));
+  left: calc(var(--stage-right) - 42px);
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.feast__close:hover,
+.feast__close:focus-visible {
+  background: color-mix(in srgb, var(--ink) 15%, transparent);
+  outline: none;
+}
+
+/* the way out: the whole scene fades back into the page (still taking presses, so none lands on the
+   page through it) */
+.feast.is-ending,
+.feast.is-away {
+  animation: feast-out var(--fade-ms) ease-in forwards;
+}
+
+@keyframes feast-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feast__flying,
+  .feast__frame--star.is-on,
+  .feast__burst,
+  .feast__words span,
+  .feast.is-ending,
+  .feast.is-away {
+    animation: none;
+  }
+}
+
+/* The stages under the bar: four segments of a progress bar, each filling as its frames go by (--fill),
+   the current one's name in ink; each opens its physics. */
+.feast__stages {
+  position: absolute;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.feast__stage-btn {
+  display: grid;
+  gap: 7px;
+  width: 100%;
+  padding: 6px 0 4px;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  text-align: left;
+  text-transform: uppercase;
+  text-shadow:
+    0 0 1px var(--bg),
+    0 0 2px var(--bg),
+    0 0 3px var(--bg),
+    0 0 6px var(--bg),
+    0 0 12px var(--bg);
+  cursor: pointer;
+}
+
+.feast__stage-track {
+  position: relative;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--ink) 16%, transparent);
+}
+
+.feast__stage-track::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #fec41a;
+  transform: scaleX(var(--fill));
+  transform-origin: 0 50%;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.feast__stage-name {
+  opacity: 0.45;
+  transition: opacity 0.2s ease;
+}
+
+.feast__stage-btn.is-lit .feast__stage-name {
+  opacity: 0.8;
+}
+
+.feast__stage-btn.is-now .feast__stage-name,
+.feast__stage-btn.is-open .feast__stage-name,
+.feast__stage-btn:hover .feast__stage-name,
+.feast__stage-btn:focus-visible .feast__stage-name {
+  opacity: 1;
+}
+
+.feast__stage-btn.is-open .feast__stage-name {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.feast__stage-btn:focus-visible {
+  outline: 1.5px solid var(--ink);
+  outline-offset: 3px;
+}
+
+/* A stage's physics: a card on the page's paper, left of the stage (a sheet along the bottom of a
+   narrow screen); it scrolls on its own when long. */
+.feast__read {
+  position: absolute;
+  max-height: calc(100vh - var(--header-h, 64px) - 48px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  translate: 0 -50%;
+  padding: 22px 24px 20px;
+  border: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+  border-radius: 6px;
+  background: var(--bg);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.55;
+  touch-action: pan-y;
+  -webkit-user-select: text;
+  user-select: text;
+  animation: feast-read-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.feast__read--sheet {
+  top: calc(var(--header-h, 64px) + 10px);
+  left: 12px;
+  right: 12px;
+  max-height: none;
+  translate: none;
+}
+
+@keyframes feast-read-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+.feast__read-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--ink) 7%, transparent);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.feast__read-kicker {
+  margin: 0 30px 8px 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.feast__read-title {
+  margin: 0 0 10px;
+  font-size: 19px;
+  line-height: 1.25;
+}
+
+.feast__read p {
+  margin: 0 0 10px;
+}
+
+.feast__read ul {
+  margin: 0 0 10px;
+  padding-left: 18px;
+}
+
+.feast__read li {
+  margin-bottom: 5px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feast__read,
+  .feast__stage-track::after {
+    animation: none;
+    transition: none;
+  }
+}

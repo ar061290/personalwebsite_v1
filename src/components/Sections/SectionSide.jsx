@@ -6,6 +6,7 @@
 // VideoOverlay.jsx.) Also the die-cut sticker an entry can hang beside itself (EntrySticker, an
 // entry.aside: level with its entry in the left column, or in the corner of its text on phones).
 import { useEffect, useRef, useState } from 'react'
+import useScrollLerp from '../../lib/useScrollLerp.js'
 import './SectionSide.css'
 
 const SLIDE_MS = 2200
@@ -23,16 +24,24 @@ function useInView(ref, onChange, threshold = 0.25) {
   }, [ref, onChange, threshold])
 }
 
-export function LogoStickers({ items }) {
+/**
+ * `wrap`: laid out in rows, side by side, rather than one under another (many stickers in a short
+ * section); a sticker's `width` (any CSS length) sizes it against the others.
+ */
+export function LogoStickers({ items, wrap = false }) {
   const ref = useRef(null)
   const [shown, setShown] = useState(false)
   // stuck on once, the first time they come into view
   useInView(ref, (v) => v && setShown(true))
 
   return (
-    <ul ref={ref} className={`side-stickers${shown ? ' is-in' : ''}`}>
+    <ul ref={ref} className={`side-stickers${wrap ? ' side-stickers--wrap' : ''}${shown ? ' is-in' : ''}`}>
       {items.map((s, i) => (
-        <li key={s.alt} className="side-sticker" style={{ '--tilt': `${s.tilt ?? 0}deg`, '--n': i }}>
+        <li
+          key={s.alt}
+          className="side-sticker"
+          style={{ '--tilt': `${s.tilt ?? 0}deg`, '--n': i, ...(s.width ? { '--w': s.width } : {}) }}
+        >
           <img src={s.src} alt={s.alt} draggable="false" loading="lazy" />
         </li>
       ))}
@@ -40,19 +49,70 @@ export function LogoStickers({ items }) {
   )
 }
 
+// a press on an entry's sticker points out the entry's links: lit as if hovered, for this long
+const LIT_MS = 1800
+const ENTRY_LINKS = '.cpage__site a, .docs__link'
+
+/**
+ * Lights the links of the entry `from` hangs beside (its row, when the sticker is in the left column;
+ * its own article on phones). When none of them is on screen, the page first scrolls until the last
+ * of them sits two-thirds of the way down the view.
+ */
+function pointOutLinks(from, timer) {
+  const scope = from.closest('.cpage__row') ?? from.closest('.cpage__entry')
+  const links = [...(scope?.querySelectorAll(ENTRY_LINKS) ?? [])]
+  if (!links.length) return
+  const top = (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 64) + 8
+  const onScreen = links.some((l) => {
+    const r = l.getBoundingClientRect()
+    return r.top >= top && r.bottom <= window.innerHeight - 8
+  })
+  if (!onScreen) {
+    const last = links[links.length - 1].getBoundingClientRect()
+    window.scrollBy({ top: last.top - window.innerHeight * 0.67, behavior: reducedMotion() ? 'auto' : 'smooth' })
+  }
+  for (const l of links) l.classList.add('is-lit')
+  clearTimeout(timer.current)
+  timer.current = setTimeout(() => links.forEach((l) => l.classList.remove('is-lit')), LIT_MS + (onScreen ? 0 : 700))
+}
+
 /**
  * One die-cut sticker stuck beside an entry (ContentPage's entry.aside.sticker), popped on the first time
  * it comes into view, like the logo stickers. The art carries its own white vinyl margin; the same
- * hard white shadows as theirs tidy its edge.
+ * hard white shadows as theirs tidy its edge. `width` and `shift` (CSS lengths) size it and set how far
+ * into the left column it sits. Pressing it points out the entry's links (pointOutLinks).
  */
 export function EntrySticker({ sticker }) {
   const ref = useRef(null)
+  const timer = useRef(0)
   const [shown, setShown] = useState(false)
   useInView(ref, (v) => v && setShown(true))
+  useEffect(() => () => clearTimeout(timer.current), [])
 
+  const point = () => ref.current && pointOutLinks(ref.current, timer)
   return (
-    <figure ref={ref} className={`entry-sticker${shown ? ' is-in' : ''}`} style={{ '--tilt': `${sticker.tilt ?? 0}deg`, ...(sticker.width ? { '--sticker-w': sticker.width } : {}) }}>
-      <img src={sticker.src} alt={sticker.alt} draggable="false" loading="lazy" decoding="async" />
+    <figure
+      ref={ref}
+      className={`entry-sticker${shown ? ' is-in' : ''}`}
+      style={{
+        '--tilt': `${sticker.tilt ?? 0}deg`,
+        ...(sticker.width ? { '--sticker-w': sticker.width } : {}),
+        ...(sticker.shift ? { '--sticker-x': sticker.shift } : {}),
+      }}
+      role="button"
+      tabIndex={0}
+      aria-label={`${sticker.alt}. Show this entry’s links`}
+      data-cursor="links"
+      data-no-sticker // a press here points out links; it doesn't stick a sticker on the page
+      onClick={point}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          point()
+        }
+      }}
+    >
+      <img src={sticker.src} alt="" draggable="false" loading="lazy" decoding="async" />
     </figure>
   )
 }
@@ -159,6 +219,10 @@ export function ReelCards({ reels, note }) {
 
 export function AutoSlideshow({ slides, label }) {
   const ref = useRef(null)
+  const frameRef = useRef(null)
+  // the same shear as the homepage's photo (ScrapPhoto): with scroll speed, and with the mouse moving
+  // up and down across it
+  useScrollLerp(frameRef, { pointer: true })
   // the photo fading in, and the one it fades in over (held fully up underneath,
   // so the change never dips through to the background)
   const [{ index, prev }, setShown] = useState({ index: 0, prev: -1 })
@@ -176,7 +240,7 @@ export function AutoSlideshow({ slides, label }) {
 
   return (
     <figure ref={ref} className="side-slides" role="img" aria-label={label}>
-      <div className="side-slides__frame">
+      <div className="side-slides__frame" ref={frameRef}>
         {slides.map((s, i) => (
           <img
             key={s.src}

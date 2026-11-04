@@ -32,6 +32,15 @@ html:has(dialog[open]) .cursor {
   opacity: 0;
 }
 
+/* The footer's pendulum figures draw in shadow DOM, with their own grab / pointer cursors, which the
+   rule above can't reach: hide them from outside too (an outer ::part rule beats the shadow's). */
+html.has-custom-cursor :is(melon-pendulum, kinder-pendulum)::part(canvas),
+html.has-custom-cursor :is(melon-pendulum, kinder-pendulum)::part(stage),
+html.has-custom-cursor :is(melon-pendulum, kinder-pendulum)::part(pause),
+html.has-custom-cursor kinder-pendulum::part(gl) {
+  cursor: none !important;
+}
+
 .cursor {
   /* Reference: text-xs = clamp(1rem, .933rem + .1852vw, 1.2rem) at a 10px root. */
   --cursor-fs: clamp(10px, 9.333px + 0.1852vw, 12px);

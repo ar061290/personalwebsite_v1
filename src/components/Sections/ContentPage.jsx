@@ -14,6 +14,7 @@ import ScribbleLink from '../Header/Scribble.jsx'
 import { AutoSlideshow, EntrySticker, LogoStickers, ReelCards } from './SectionSide.jsx'
 import VideoCard from './VideoOverlay.jsx'
 import DocLinks from './DocViewer.jsx'
+import CertViewer from './CertViewer.jsx'
 import InferenceGraphic from './InferenceGraphic.jsx'
 import Lattice from './Lattice.jsx'
 import { useTheme } from '../../lib/theme.js'
@@ -38,8 +39,12 @@ function EntryLinks({ links }) {
   )
 }
 
-/** The certificate behind an award or a course: a small grey link before its year. */
+/**
+ * The certificate behind an award or a course: a small grey "view" before its year. A list of
+ * certificates (the site's own copies) opens them over the page (CertViewer.jsx); a URL opens it.
+ */
 function ViewLink({ href, what }) {
+  if (Array.isArray(href)) return <CertViewer certs={href} what={what} />
   return (
     <a className="cpage__view" href={href} target="_blank" rel="noopener noreferrer" aria-label={`View certificate: ${what}`}>
       view ↗
@@ -48,22 +53,33 @@ function ViewLink({ href, what }) {
 }
 
 /**
- * An entry's own site (entry.site): underlined text that still reads as the thing to press. Under the
+ * An entry's own site (entry.site, or `to`: a page of this site): underlined text that still reads as
+ * the thing to press. Under the
  * entry's points, and (`byTitle`, site.byTitle) also in its header, straight after the title's last
  * word: a span there, inside the title's line.
  */
 function SiteLink({ site, byTitle = false }) {
-  if (!site?.href) return null
+  if (!site?.href && !site?.to) return null
   const Tag = byTitle ? 'span' : 'p'
   return (
     <Tag className={`cpage__site${byTitle ? ' cpage__site--title' : ''}`}>
-      <a href={site.href} target="_blank" rel="noopener noreferrer" data-cursor="visit">
-        {site.label}
-        <span className="cpage__site-arrow" aria-hidden="true">
-          ↗
-        </span>
-        <span className="cpage__offscreen"> (opens in a new tab)</span>
-      </a>
+      {site.to ? (
+        // another page of the site (`to`), in the same look
+        <Link to={site.to} data-cursor="visit">
+          {site.label}
+          <span className="cpage__site-arrow cpage__site-arrow--on" aria-hidden="true">
+            →
+          </span>
+        </Link>
+      ) : (
+        <a href={site.href} target="_blank" rel="noopener noreferrer" data-cursor="visit">
+          {site.label}
+          <span className="cpage__site-arrow" aria-hidden="true">
+            ↗
+          </span>
+          <span className="cpage__offscreen"> (opens in a new tab)</span>
+        </a>
+      )}
     </Tag>
   )
 }
@@ -209,7 +225,7 @@ function SectionHead({ section, index }) {
         {section.heading}
       </h2>
       {section.video && <VideoCard video={section.video} />}
-      {section.stickers?.length > 0 && <LogoStickers items={section.stickers} />}
+      {section.stickers?.length > 0 && <LogoStickers items={section.stickers} wrap={section.stickersWrap} />}
       {section.slides?.length > 0 && <AutoSlideshow slides={section.slides} label={section.slidesLabel} />}
       {section.reels?.length > 0 && <ReelCards reels={section.reels} note={section.reelsNote} />}
     </>

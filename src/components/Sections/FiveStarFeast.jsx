@@ -2,9 +2,8 @@
 // page itself left in view behind it (the frames are cut-outs). Pressing the bar lifts it off its
 // ribbon and brings it, turning and growing, to the middle of the screen, where it becomes frame 1:
 // the same picture of the bar (the one on the ribbon is frame 1's), now with its dashes. From there:
-//   frames 1 → 6 (peeling): HOLD TO PEEL. Holding steps through them on its own (STEP_MS a frame);
-//     a click steps one.
-//   frames 6 → 9 (eating): CLICK TO EAT. Every press steps one; a hold counts as one press.
+//   frames 1 → 6 (peeling): CLICK TO PEEL. Every click is a frame.
+//   frames 6 → 9 (eating): CLICK TO EAT. The same.
 // The words stand beside the bar (under it where there is no room), large; the cursor keeps its "+".
 // Frames change in a cut, never a fade, and each is tipped a degree and a half the other way from the
 // last (baked into the pictures: src/assets/fivestar), so the bar rocks as it goes. At frame 9 (all
@@ -12,10 +11,7 @@
 // scene fades back into the page, and the bar is back on its ribbon.
 // Escape, the × or the browser's back button puts it away early, and the frame it was on is kept:
 // pressing the bar again carries on from there, until the page is left or reloaded (or the bar was
-// nearly gone, at frame 8). Space and Enter press like the mouse (held, they peel on).
-// Under the bar, a strip of the four stages (tear, peel, pull out, bite) fills in as the frames go by,
-// a progress bar; pressing a stage opens what is going on in it, physically (src/content/fiveStarPhysics.js),
-// and while that is open the scene waits at its last frame.
+// nearly gone, at frame 8). Space and Enter click too.
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { holdPage, releasePage } from '../../lib/scrollLock.js'
@@ -29,7 +25,6 @@ import f7 from '../../assets/fivestar/frame-7.webp'
 import f8 from '../../assets/fivestar/frame-8.webp'
 import f9 from '../../assets/fivestar/frame-9.webp'
 import barSrc from '../../assets/fivestar/medal-bar.webp'
-import PHYSICS from '../../content/fiveStarPhysics.js'
 import './FiveStarFeast.css'
 
 const FRAMES = [
@@ -50,8 +45,6 @@ const FRAME_H = 366
 const BAR1 = { cx: 304.3, cy: 190.38, long: 533, short: 174 } // frame 1's bar in the picture (px): its centre, its sides
 const STAR9 = { cx: 355, cy: 182.3 } // frame 9's star, its centre (px)
 const TILT_1 = 1.5 // frame 1's own tilt (deg, clockwise)
-const HOLD_MS = 240 // a press longer than this is a hold
-const STEP_MS = 260 // a frame this often while held
 const FLY_MS = 640 // the bar's way from its ribbon to the middle
 const END_MS = 1300 // frame 9 stays this long (its burst plays out) before the scene fades
 const FADE_MS = 520 // the scene's fade out at the end
@@ -104,13 +97,9 @@ export function warmFeast() {
 function stageBox() {
   const vw = window.innerWidth
   const vh = window.innerHeight
-  const fit = (room) => Math.min(vw * 0.86, 560, ((vh - room) * FRAME_W) / FRAME_H)
-  let w = fit(150)
-  const beside = (vw - w) / 2 >= WORDS_ROOM
-  // with the words under the stage (below the stages' strip), leave room for both
-  if (!beside) w = fit(230)
+  const w = Math.min(vw * 0.86, 560, ((vh - 150) * FRAME_W) / FRAME_H)
   const h = (w * FRAME_H) / FRAME_W
-  return { w, h, left: (vw - w) / 2, top: Math.max(0, (vh - h) / 2 - (beside ? 0 : 40)), beside }
+  return { w, h, left: (vw - w) / 2, top: (vh - h) / 2, beside: (vw - w) / 2 >= WORDS_ROOM }
 }
 
 /** A synthetic pointer move where the pointer is, so the site's cursor reads what is under it again. */
@@ -131,12 +120,10 @@ export default function FiveStarFeast({ from, onDone }) {
   const [frame, setFrame] = useState(kept)
   const [phase, setPhase] = useState(reducedMotion() ? 'open' : 'flying') // flying | open | ending | away
   const [box, setBox] = useState(stageBox)
-  const [reading, setReading] = useState(null) // the stage whose physics is open, or null
   const frameRef = useRef(frame)
   frameRef.current = frame
   const phaseRef = useRef(phase)
   phaseRef.current = phase
-  const press = useRef(null) // { holdTimer, repeat, held }
   const pointer = useRef(from.pointer ? { ...from.pointer, known: true } : { x: 0, y: 0, known: false })
 
   useEffect(() => {
@@ -168,18 +155,8 @@ export default function FiveStarFeast({ from, onDone }) {
     return () => clearTimeout(t)
   }, [phase])
 
-  const stopHold = () => {
-    const p = press.current
-    if (!p) return
-    clearTimeout(p.holdTimer)
-    clearInterval(p.repeat)
-    press.current = null
-  }
-  useEffect(() => stopHold, [])
-
   const finish = useCallback(
     (how) => {
-      stopHold()
       setPhase(how)
       const ms = reducedMotion() ? 0 : how === 'ending' ? FADE_MS : AWAY_MS
       setTimeout(onDone, ms)
@@ -218,10 +195,9 @@ export default function FiveStarFeast({ from, onDone }) {
   useEffect(() => {
     if (frame !== LAST || phase !== 'open') return undefined
     kept = 1
-    if (reading !== null) return undefined // (someone is reading: it waits for them)
     const t = setTimeout(() => finish('ending'), END_MS)
     return () => clearTimeout(t)
-  }, [frame, phase, finish, reading])
+  }, [frame, phase, finish])
 
   const step = () => {
     if (phaseRef.current !== 'open') return false
@@ -232,38 +208,13 @@ export default function FiveStarFeast({ from, onDone }) {
     return true
   }
 
-  // a press (the mouse, a finger, Space or Enter) and its release
-  const startPress = () => {
-    stopHold()
-    if (frameRef.current >= PEELED) {
-      step() // eating: every press is one bite, however long it is held
-      press.current = { held: true }
-      return
-    }
-    // peeling: a short press peels a step; a long one keeps peeling until it is peeled
-    const p = { held: false, holdTimer: 0, repeat: 0 }
-    p.holdTimer = setTimeout(() => {
-      p.held = true
-      step()
-      p.repeat = setInterval(() => {
-        if (frameRef.current >= PEELED || !step()) clearInterval(p.repeat)
-      }, STEP_MS)
-    }, HOLD_MS)
-    press.current = p
-  }
-  const endPress = () => {
-    const p = press.current
-    if (p && !p.held) step()
-    stopHold()
-  }
-
-  // the ×, the stages and the open text are controls of their own: presses there are not bites
-  const onControl = (e) => e.target instanceof Element && e.target.closest('button, .feast__read')
+  // the × is a control of its own: a press there is not a bite
+  const onControl = (e) => e.target instanceof Element && e.target.closest('button')
   const onPointerDown = (e) => {
     pointer.current = { x: e.clientX, y: e.clientY, known: e.pointerType === 'mouse' }
     if (!e.isPrimary || e.button !== 0 || phase !== 'open' || onControl(e)) return
     e.preventDefault()
-    startPress()
+    step()
   }
   const onPointerMove = (e) => {
     pointer.current = { x: e.clientX, y: e.clientY, known: e.pointerType === 'mouse' }
@@ -272,23 +223,18 @@ export default function FiveStarFeast({ from, onDone }) {
   const onKeyDown = (e) => {
     if (e.key === 'Escape') {
       e.preventDefault()
-      if (reading !== null) setReading(null)
-      else putAway()
+      putAway()
     } else if (e.key === 'Tab') {
-      // focus stays in the scene: the scene itself, its stages and its ×
+      // focus stays in the scene: the scene itself and its ×
       e.preventDefault()
       const stops = [rootRef.current, ...rootRef.current.querySelectorAll('button')]
       const at = stops.indexOf(document.activeElement)
       stops[(at + (e.shiftKey ? -1 : 1) + stops.length) % stops.length]?.focus({ preventScroll: true })
     } else if ((e.key === ' ' || e.key === 'Enter') && !onControl(e)) {
       e.preventDefault()
-      if (!e.repeat && phase === 'open') startPress()
+      if (!e.repeat) step()
     }
   }
-  const onKeyUp = (e) => {
-    if ((e.key === ' ' || e.key === 'Enter') && !onControl(e)) endPress()
-  }
-
   // the bar's flight: from its place on the ribbon to frame 1's bar, turning from hanging to lying
   const k = box.w / FRAME_W
   const endX = box.left + BAR1.cx * k
@@ -299,23 +245,10 @@ export default function FiveStarFeast({ from, onDone }) {
   const flyTo = `translate(${endX}px, ${endY}px) rotate(${-90 + TILT_1}deg) scale(${endScale})`
 
   const words =
-    phase === 'flying' || frame >= LAST
-      ? ''
-      : frame < PEELED
-        ? 'hold to peel'
-        : touchOnly()
-          ? 'tap to eat'
-          : 'click to eat'
-  const stripAt = { left: box.left, top: box.top + box.h + 14, width: box.w }
+    phase === 'flying' || frame >= LAST ? '' : `${touchOnly() ? 'tap' : 'click'} to ${frame < PEELED ? 'peel' : 'eat'}`
   const wordsAt = box.beside
     ? { left: box.left + box.w + WORDS_GAP, top: box.top + BAR1.cy * k }
-    : { left: '50%', top: box.top + box.h + 70 }
-  // the text: in the room left of the stage, or on a narrow screen a sheet over the stage, above the
-  // strip (so the other stages can still be picked)
-  const readAt = box.beside
-    ? { left: Math.max(16, box.left - 40 - 380), width: Math.min(380, box.left - 56), top: box.top + box.h / 2 }
-    : { bottom: `calc(100% - ${stripAt.top - 10}px)` }
-  const stageNow = PHYSICS.findIndex((st) => frame >= st.frames[0] && frame <= st.frames[1])
+    : { left: '50%', top: box.top + box.h + 18 }
   const shown = phase !== 'flying'
   const burst = frame === LAST && shown && !reducedMotion()
 
@@ -325,7 +258,7 @@ export default function FiveStarFeast({ from, onDone }) {
       className={`feast is-${phase}`}
       role="dialog"
       aria-modal="true"
-      aria-label="Unwrapping and eating a Cadbury 5 Star: press and hold to peel, then click to eat. Escape puts it away."
+      aria-label="Unwrapping and eating a Cadbury 5 Star: click to peel, then click to eat. Escape puts it away."
       tabIndex={-1}
       data-cursor=""
       data-no-sticker=""
@@ -335,12 +268,8 @@ export default function FiveStarFeast({ from, onDone }) {
         '--stage-right': `${box.left + box.w}px`,
       }}
       onPointerDown={onPointerDown}
-      onPointerUp={endPress}
-      onPointerCancel={stopHold}
-      onPointerLeave={stopHold}
       onPointerMove={onPointerMove}
       onKeyDown={onKeyDown}
-      onKeyUp={onKeyUp}
       onContextMenu={(e) => e.preventDefault()}
     >
       <div className="feast__stage" style={{ left: box.left, top: box.top, width: box.w, height: box.h }}>
@@ -414,30 +343,6 @@ export default function FiveStarFeast({ from, onDone }) {
         {/* a new word slides up into place, as the cursor's do */}
         <span key={words || 'none'}>{words}</span>
       </p>
-      <ol className="feast__stages" style={stripAt} aria-label="The physics of it, stage by stage">
-        {PHYSICS.map((st, i) => {
-          const [a, b] = st.frames
-          const fill = frame < a ? 0 : frame > b ? 1 : (frame - a + 1) / (b - a + 1)
-          return (
-            <li key={st.name}>
-              <button
-                type="button"
-                className={`feast__stage-btn${fill > 0 ? ' is-lit' : ''}${i === stageNow ? ' is-now' : ''}${reading === i ? ' is-open' : ''}`}
-                style={{ '--fill': fill }}
-                aria-expanded={reading === i}
-                aria-controls="feast-read"
-                data-cursor="read"
-                onClick={() => setReading(reading === i ? null : i)}
-              >
-                <span className="feast__stage-track" aria-hidden="true" />
-                <span className="feast__stage-name">
-                  {i + 1} · {st.name}
-                </span>
-              </button>
-            </li>
-          )
-        })}
-      </ol>
       <button
         ref={closeRef}
         type="button"
@@ -450,39 +355,6 @@ export default function FiveStarFeast({ from, onDone }) {
           <path d="m6 6 12 12M18 6 6 18" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" fill="none" />
         </svg>
       </button>
-      {/* (after the ×: on a phone the text covers it, and has its own) */}
-      {reading !== null && (
-        <section
-          id="feast-read"
-          className={`feast__read${box.beside ? '' : ' feast__read--sheet'}`}
-          style={readAt}
-          aria-label={PHYSICS[reading].title}
-          data-cursor=""
-        >
-          <button type="button" className="feast__read-close" onClick={() => setReading(null)} aria-label="Close">
-            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
-              <path
-                d="m6 6 12 12M18 6 6 18"
-                stroke="currentColor"
-                strokeWidth="1.9"
-                strokeLinecap="round"
-                fill="none"
-              />
-            </svg>
-          </button>
-          <p className="feast__read-kicker">
-            stage {reading + 1} of {PHYSICS.length} · {PHYSICS[reading].topics}
-          </p>
-          <h2 className="feast__read-title">{PHYSICS[reading].title}</h2>
-          <p>{PHYSICS[reading].lead}</p>
-          <ul>
-            {PHYSICS[reading].points.map((pt) => (
-              <li key={pt}>{pt}</li>
-            ))}
-          </ul>
-          {PHYSICS[reading].close && <p>{PHYSICS[reading].close}</p>}
-        </section>
-      )}
     </div>,
     document.body,
   )

@@ -441,7 +441,7 @@
 /* an aside below the label (the first row) hangs where a section's own side items do; one on a later
    row starts level with its entry's title */
 .cpage__row-stick > .entry-sticker {
-  width: clamp(100px, 10vw, 156px);
+  width: var(--sticker-w, clamp(100px, 10vw, 156px)); /* a sticker may ask for its own (sticker.width) */
   margin: 30px 0 0 clamp(4px, 2vw, 30px);
 }
 

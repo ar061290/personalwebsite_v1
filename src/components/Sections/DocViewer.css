@@ -1,0 +1,967 @@
+/* An entry's documents (DocViewer.jsx): the links under its points, and the viewer over the page, the
+   report's pages or the presentation's slides. The viewer sits on its own dark veil in both themes, like
+   the video player; the slides are printed on paper in both. The reels' viewer (ReelCards in
+   SectionSide.jsx) borrows the same dialog. */
+
+/* ── the links: like the entry's site link (ContentPage.css, .cpage__site) ── */
+.docs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 26px;
+  margin: 22px 0 0;
+}
+
+.docs__link {
+  display: inline-block;
+  padding: 5px 6px 6px 4px;
+  margin-left: -4px;
+  border: 0;
+  border-radius: 3px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 6px;
+  background: linear-gradient(var(--accent), var(--accent)) no-repeat left bottom / 100% 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-size 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.2s ease,
+    text-decoration-color 0.2s ease;
+}
+
+.docs__arrow {
+  display: inline-block;
+  margin-left: 7px;
+  font-weight: 400;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.docs__link:hover,
+.docs__link:focus-visible {
+  background-size: 100% 100%;
+  color: var(--accent-ink);
+  text-decoration-color: transparent;
+  outline: none;
+}
+
+.docs__link:hover .docs__arrow,
+.docs__link:focus-visible .docs__arrow {
+  transform: translateX(3px);
+}
+
+/* ── the viewer ── */
+html.docview-lock {
+  overflow: hidden;
+  scrollbar-gutter: stable;
+  background-color: color-mix(in srgb, #0a0807 88%, var(--paper-base));
+}
+
+.docview[open] {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  /* one cell, the screen's size: a deck's track (every slide side by side) can't widen it */
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  place-items: center;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
+    max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  overflow: hidden;
+  overscroll-behavior: contain;
+  border: 0;
+  background: transparent;
+  color: #f5eee3;
+  font-family: var(--font-ui);
+  animation: docview-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.docview::backdrop {
+  background: rgba(10, 8, 7, 0.9);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  animation: docview-fade 0.3s ease-out;
+}
+
+@keyframes docview-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+}
+
+@keyframes docview-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* the system pointer over the viewer (the site's own cursor is drawn under the top layer) */
+html.has-custom-cursor .docview,
+html.has-custom-cursor .docview * {
+  cursor: auto !important;
+}
+
+html.has-custom-cursor .docview :is(button, a) {
+  cursor: pointer !important;
+}
+
+.docview__frame {
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 1320px);
+  height: 100%;
+  min-height: 0;
+}
+
+.docview--report .docview__frame {
+  width: min(100%, 940px);
+}
+
+.docview__frame.is-fullscreen {
+  width: 100%;
+  padding: 14px 18px;
+  background: #0a0807;
+}
+
+.docview__top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 44px;
+  margin-bottom: 8px;
+}
+
+.docview__title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.docview__count {
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: rgba(245, 238, 227, 0.62);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.docview__pdf {
+  padding: 6px 10px;
+  border: 1px solid rgba(245, 238, 227, 0.3);
+  border-radius: 999px;
+  color: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.docview__pdf:hover,
+.docview__pdf:focus-visible {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
+  outline: none;
+}
+
+.docview__btn {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(245, 238, 227, 0.1);
+  color: inherit;
+  transition: background 0.2s ease;
+}
+
+.docview__btn:hover,
+.docview__btn:focus-visible {
+  background: rgba(245, 238, 227, 0.22);
+  outline: none;
+}
+
+.docview__btn:focus-visible {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.docview__offscreen {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* a reel: Instagram's embed, as wide as lets the reel itself fit the screen's height */
+.docview--reel .docview__frame {
+  width: clamp(400px, calc((100dvh - 120px) * 0.6), 560px);
+}
+
+.docview__reel {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  border: 0;
+  border-radius: 8px;
+  background: #fff;
+}
+
+/* the report's pages: paper, one under another */
+.docview__pages {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  min-height: 0;
+  padding: 4px 0 24px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  outline: none;
+  scrollbar-color: rgba(245, 238, 227, 0.3) transparent;
+}
+
+.docview__page {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+  background: #fff;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+  user-select: none;
+}
+
+/* ── the deck: a track of slides, one per screen, snapped ── */
+.deck {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.deck__track {
+  display: flex;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  outline: none;
+}
+
+.deck__track::-webkit-scrollbar {
+  display: none;
+}
+
+.deck__cell {
+  display: grid;
+  flex: 0 0 100%;
+  place-items: center;
+  height: 100%;
+  padding: 0 60px;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  container-type: size;
+}
+
+.deck__nav {
+  position: absolute;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  margin-top: -23px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(245, 238, 227, 0.12);
+  color: #f5eee3;
+  transition:
+    background 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.deck__nav--prev {
+  left: 0;
+}
+
+.deck__nav--next {
+  right: 0;
+}
+
+.deck__nav:hover:not(:disabled),
+.deck__nav:focus-visible {
+  background: var(--accent);
+  color: var(--accent-ink);
+  outline: none;
+}
+
+.deck__nav:disabled {
+  opacity: 0.25;
+  cursor: default !important;
+}
+
+.deck__progress {
+  height: 3px;
+  margin-top: 10px;
+  border-radius: 2px;
+  background: rgba(245, 238, 227, 0.14);
+  overflow: hidden;
+}
+
+.deck__progress span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transform: scaleX(var(--p));
+  transform-origin: left;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── a slide: a 16:9 sheet, everything sized from its width (1em = 1/64 of it) ── */
+.slide {
+  --acc: #c8475f; /* the deck's own: watermelon */
+  --paper: #fbf8f2;
+  --ink-s: #1b1816;
+  --soft: #6a625b;
+  --line: rgba(27, 24, 22, 0.14);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(100cqw, 100cqh * 16 / 9);
+  aspect-ratio: 16 / 9;
+  padding: 2.4em 3em 2.2em;
+  overflow: hidden;
+  border-radius: 0.35em;
+  background: var(--paper);
+  color: var(--ink-s);
+  font-size: calc(min(100cqw, 100cqh * 16 / 9) / 64);
+  line-height: 1.42;
+  box-shadow: 0 1.2em 3em -1.2em rgba(0, 0, 0, 0.7);
+}
+
+.subj-physics {
+  --acc: #0d8a66;
+}
+.subj-ess {
+  --acc: #cc4677;
+}
+.subj-chemistry {
+  --acc: #d9542b;
+}
+.subj-biology {
+  --acc: #7a3fa6;
+}
+.subj-cs {
+  --acc: #2a5fd3;
+}
+
+/* a strip of the subject's colour down the left edge */
+.slide::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 0.5em;
+  background: var(--acc);
+}
+
+.slide__tag {
+  margin: 0 0 0.3em;
+  color: var(--acc);
+  font-size: 0.78em;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.slide__title {
+  margin: 0 0 0.75em;
+  font-size: 2.15em;
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.slide__bullets,
+.slide__sub {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.slide__bullets > li {
+  position: relative;
+  margin: 0 0 0.62em;
+  padding-left: 1.15em;
+  font-size: 1.08em;
+  text-wrap: pretty;
+}
+
+.slide__bullets > li::before {
+  content: '';
+  position: absolute;
+  top: 0.58em;
+  left: 0;
+  width: 0.48em;
+  height: 0.48em;
+  border-radius: 50%;
+  background: var(--acc);
+}
+
+.slide__sub {
+  margin-top: 0.3em;
+}
+
+.slide__sub li {
+  position: relative;
+  margin: 0 0 0.2em;
+  padding-left: 1em;
+  color: #3d3732;
+  font-size: 0.92em;
+}
+
+.slide__sub li::before {
+  content: '–';
+  position: absolute;
+  left: 0;
+  color: var(--acc);
+}
+
+.slide__split {
+  display: grid;
+  flex: 1;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.4em;
+  align-items: center;
+  min-height: 0;
+}
+
+.slide__split.has-table {
+  grid-template-columns: 0.8fr 1.2fr;
+}
+
+.slide.is-wide .slide__split {
+  grid-template-columns: 1fr;
+  align-items: start;
+}
+
+.slide__media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+  margin: 0;
+}
+
+.slide__media img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 0.3em;
+  box-shadow: 0 0.4em 1.2em -0.4em rgba(0, 0, 0, 0.35);
+  object-fit: contain;
+  user-select: none;
+}
+
+.slide__media--cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.slide__media--contain img {
+  width: auto;
+  background: #fff;
+}
+
+.slide__media.is-bare img {
+  box-shadow: none;
+  background: none;
+}
+
+.slide__foot {
+  margin: 0.9em 0 0;
+  padding-top: 0.7em;
+  border-top: 1px solid var(--line);
+  color: var(--soft);
+  font-size: 0.86em;
+}
+
+.slide__n {
+  position: absolute;
+  right: 1.4em;
+  bottom: 1em;
+  color: var(--soft);
+  font-size: 0.72em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* tables */
+.slide__table {
+  margin: 0;
+  min-width: 0;
+}
+
+.slide__table-scroll {
+  overflow-x: auto;
+}
+
+.slide__table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8em;
+  font-variant-numeric: tabular-nums;
+}
+
+.slide__table th,
+.slide__table td {
+  padding: 0.5em 0.6em;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.slide__table thead th {
+  border-bottom: 2px solid var(--acc);
+  color: var(--soft);
+  font-size: 0.86em;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.slide__table tbody th {
+  font-weight: 700;
+}
+
+.slide__table tr.is-marked {
+  background: color-mix(in srgb, var(--acc) 14%, transparent);
+}
+
+.slide__table td:nth-last-child(-n + 3) {
+  text-align: right;
+}
+
+.slide__table thead th:nth-last-child(-n + 3) {
+  text-align: right;
+}
+
+.slide__table--waste td:nth-last-child(-n + 7),
+.slide__table--waste thead th:nth-last-child(-n + 7) {
+  text-align: right;
+}
+
+.slide__table figcaption {
+  margin-top: 0.6em;
+  color: var(--soft);
+  font-size: 0.78em;
+}
+
+/* the cover: the question big, the vendor beside it */
+.slide--cover .slide__split {
+  grid-template-columns: 1.55fr 1fr;
+  height: 100%;
+}
+
+.slide--cover .slide__media--cover {
+  height: calc(100% + 4.6em);
+  margin: -2.4em -3em -2.2em 0;
+}
+
+.slide--cover .slide__media--cover img {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.slide__kicker {
+  margin: 0 0 1em;
+  color: var(--acc);
+  font-size: 0.9em;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.slide__rq {
+  margin: 0 0 1.2em;
+  font-size: 2.05em;
+  font-weight: 650;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.slide__people {
+  margin: 0 0 0.25em;
+  font-size: 1.05em;
+  font-weight: 600;
+}
+
+.slide__people--soft {
+  color: var(--soft);
+  font-weight: 400;
+}
+
+/* five questions */
+.slide__questions {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.1em 1.4em;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.slide__questions li {
+  padding: 0.8em 0 0;
+  border-top: 0.25em solid var(--acc);
+  font-size: 0.98em;
+  text-wrap: pretty;
+}
+
+.slide__q-name {
+  display: block;
+  margin-bottom: 0.35em;
+  color: var(--acc);
+  font-size: 0.8em;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* a subject's title slide */
+.slide--section,
+.slide--end {
+  justify-content: center;
+  background: var(--acc);
+  color: #fff;
+}
+
+.slide--section::before,
+.slide--end::before {
+  display: none;
+}
+
+.slide--section .slide__n,
+.slide--end .slide__n,
+.slide--end .slide__people {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.slide__section {
+  margin: 0 0 0.5em;
+  font-size: 4.6em;
+  font-weight: 750;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.slide__section-rq {
+  max-width: 36em;
+  margin: 0;
+  font-size: 1.4em;
+  line-height: 1.35;
+  text-wrap: pretty;
+}
+
+.slide__section-rq span {
+  display: block;
+  margin-bottom: 0.4em;
+  font-size: 0.58em;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+/* two ideas side by side */
+.slide__pair {
+  display: grid;
+  flex: 1;
+  grid-template-columns: 1fr 1fr;
+  gap: 2em;
+  align-items: center;
+}
+
+.slide__pair > div {
+  padding: 1.6em 1.8em;
+  border-radius: 0.5em;
+  background: color-mix(in srgb, var(--acc) 10%, #fff);
+}
+
+.slide__pair p {
+  margin: 0;
+  font-size: 1.1em;
+}
+
+.slide__pair .slide__pair-name {
+  margin-bottom: 0.35em;
+  color: var(--acc);
+  font-size: 2em;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+/* columns */
+.slide__cols {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), 1fr);
+  gap: 2em;
+}
+
+.slide__col-name {
+  margin: 0 0 0.6em;
+  padding-bottom: 0.4em;
+  border-bottom: 2px solid var(--acc);
+  font-size: 1.05em;
+  font-weight: 700;
+}
+
+.slide__col .slide__bullets > li {
+  font-size: 0.94em;
+}
+
+/* a gallery of figures */
+.slide__gallery {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: minmax(0, 1fr);
+  gap: 1em 1.4em;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.slide__gallery li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 0;
+}
+
+.slide__gallery img {
+  flex: 1;
+  min-height: 0;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 0.25em;
+  background: #fff;
+  box-shadow: 0 0.3em 0.9em -0.3em rgba(0, 0, 0, 0.3);
+}
+
+.slide__gallery span {
+  margin-top: 0.4em;
+  color: var(--soft);
+  font-size: 0.8em;
+}
+
+.slide__gallery.is-tall img {
+  background: none;
+  box-shadow: none;
+}
+
+/* references */
+.slide__refs {
+  margin: 0;
+  padding-left: 1.6em;
+  columns: 1;
+  font-size: 0.86em;
+}
+
+.slide__refs li {
+  margin-bottom: 0.45em;
+  overflow-wrap: anywhere;
+}
+
+.slide__refs a {
+  color: var(--ink-s);
+  text-decoration-color: var(--acc);
+  text-underline-offset: 0.2em;
+}
+
+/* ── narrow screens (the cell, not the window): a slide becomes a card that fills the cell, its
+   columns stacked, scrolled up and down if it runs long ── */
+@container (max-width: 640px) {
+  .slide {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+    padding: 22px 20px 30px 26px;
+    overflow-y: auto;
+    font-size: 14.5px;
+  }
+
+  .slide__title {
+    font-size: 1.6em;
+  }
+
+  .slide__split,
+  .slide__split.has-table,
+  .slide--cover .slide__split,
+  .slide__pair,
+  .slide__cols,
+  .slide__questions {
+    grid-template-columns: 1fr;
+    gap: 1.2em;
+  }
+
+  .slide__split {
+    flex: none;
+    align-items: start;
+  }
+
+  .slide__media {
+    height: auto;
+  }
+
+  .slide__media img {
+    max-height: 50vh;
+  }
+
+  .slide--cover .slide__media--cover {
+    height: 38vh;
+    margin: 0 -20px -30px -26px;
+  }
+
+  .slide__rq {
+    font-size: 1.5em;
+  }
+
+  .slide__section {
+    font-size: 2.6em;
+  }
+
+  .slide__section-rq {
+    font-size: 1.15em;
+  }
+
+  .slide__gallery {
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: auto;
+  }
+
+  .slide__gallery img {
+    flex: none;
+    width: 100%;
+  }
+
+  .slide__gallery.is-tall {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .deck__cell {
+    padding: 0;
+  }
+
+  .deck__nav {
+    top: auto;
+    bottom: 10px;
+    width: 38px;
+    height: 38px;
+    margin: 0;
+    background: rgba(10, 8, 7, 0.72);
+  }
+
+  .deck__nav--prev {
+    left: auto;
+    right: 56px;
+  }
+
+  .deck__nav--next {
+    right: 10px;
+  }
+
+  .docview__title {
+    font-size: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .docview[open],
+  .docview::backdrop {
+    animation: none;
+  }
+}
+
+/* a slide of words alone has the room for them to be read from across a room */
+.slide--text:not(.has-media) .slide__bullets > li {
+  margin-bottom: 0.7em;
+  font-size: 1.42em;
+}
+
+.slide--columns .slide__col .slide__bullets > li {
+  font-size: 1.08em;
+}
+
+.slide--columns .slide__col-name {
+  font-size: 1.2em;
+}
+
+.slide.is-wide .slide__table table {
+  font-size: 1.05em;
+}
+
+.slide--refs .slide__refs {
+  font-size: 1.08em;
+}
+
+@container (max-width: 640px) {
+  .slide--text:not(.has-media) .slide__bullets > li,
+  .slide--refs .slide__refs {
+    font-size: 1.02em;
+  }
+
+  /* the tables fit the phone's width; the bottom keeps clear of the arrows over it */
+  .slide__table table,
+  .slide.is-wide .slide__table table {
+    font-size: 0.74em;
+  }
+
+  .slide__table th,
+  .slide__table td {
+    padding: 0.5em 0.35em;
+  }
+
+  .slide {
+    padding-bottom: 64px;
+  }
+}

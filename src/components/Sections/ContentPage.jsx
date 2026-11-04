@@ -7,11 +7,13 @@
 // left column level with it, rather than under the label for the whole section. A page may also set
 // headArt, a figure beside its big title (HEAD_ART below; the research page's lattice, Lattice.jsx).
 // An entry with an `id` can be linked to (/page#id), and one with `orgTo` links its grey org line there.
+// entry.docs: a report or a presentation, each opening in a viewer over the page (DocViewer.jsx).
 import { useEffect, useRef, useSyncExternalStore } from 'react'
 import { Link } from 'react-router-dom'
 import ScribbleLink from '../Header/Scribble.jsx'
 import { AutoSlideshow, EntrySticker, LogoStickers, ReelCards } from './SectionSide.jsx'
 import VideoCard from './VideoOverlay.jsx'
+import DocLinks from './DocViewer.jsx'
 import InferenceGraphic from './InferenceGraphic.jsx'
 import Lattice from './Lattice.jsx'
 import { useTheme } from '../../lib/theme.js'
@@ -176,6 +178,7 @@ function EntryBody({ entry }) {
         </ul>
       )}
       <EntryLinks links={entry.links} />
+      <DocLinks docs={entry.docs} />
       <SiteLink site={entry.site} />
     </>
   )

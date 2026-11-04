@@ -1,7 +1,6 @@
 /* An entry's documents (DocViewer.jsx): the links under its points, and the viewer over the page, the
    report's pages or the presentation's slides. The viewer sits on its own dark veil in both themes, like
-   the video player; the slides are printed on paper in both. The reels' viewer (ReelCards in
-   SectionSide.jsx) borrows the same dialog. */
+   the video player; the slides are printed on paper in both. */
 
 /* ── the links: like the entry's site link (ContentPage.css, .cpage__site) ── */
 .docs {
@@ -217,20 +216,6 @@ html.has-custom-cursor .docview :is(button, a) {
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
-}
-
-/* a reel: Instagram's embed, as wide as lets the reel itself fit the screen's height */
-.docview--reel .docview__frame {
-  width: clamp(400px, calc((100dvh - 120px) * 0.6), 560px);
-}
-
-.docview__reel {
-  flex: 1;
-  width: 100%;
-  min-height: 0;
-  border: 0;
-  border-radius: 8px;
-  background: #fff;
 }
 
 /* the report's pages: paper, one under another */

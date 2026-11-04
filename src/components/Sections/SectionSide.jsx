@@ -5,7 +5,7 @@
 // them). (The video card that can hang there too is
 // VideoOverlay.jsx.) Also the die-cut sticker an entry can hang beside itself (EntrySticker, an
 // entry.aside: level with its entry in the left column, or in the corner of its text on phones).
-import { useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './SectionSide.css'
 
 const SLIDE_MS = 2200
@@ -69,40 +69,39 @@ const ARROW_HEAD = 'M26 42.5 28 51l8.5-4'
  * The section's reels (section.reels, with section.reelsNote), as two portrait prints laid down
  * side by side, a little tilted and overlapping like photos dropped on a desk. Each is a link to its
  * reel; the still is a frame from the middle of the reel. On a computer (a mouse, a wide screen) the
- * reel plays over the page in Instagram's own embed (the reel, its caption, likes and a way through to
- * the comments; Instagram doesn't let its full page sit in another site), in a modal <dialog> like the
- * documents' viewer (DocViewer.jsx, whose styles it shares); on phones the link opens Instagram itself.
- * They settle in, and the note's arrow draws itself on, the first time they come into view.
+ * reel opens in a popup window of its own, sized and centred over this one: Instagram's real post page
+ * (the reel beside its comments, which a signed-in visitor can like and comment on), as Instagram
+ * won't let that page sit inside another site. On phones, or if popups are blocked, the link opens
+ * Instagram in a new tab (or its app). They settle in, and the note's arrow draws itself on, the first
+ * time they come into view.
  */
-const EMBED_HERE = '(min-width: 861px) and (hover: hover) and (pointer: fine)'
+const POPUP_HERE = '(min-width: 861px) and (hover: hover) and (pointer: fine)'
+const POPUP_W = 1100
+const POPUP_H = 820
+
+/** The reel in a popup window centred over this one; false if it couldn't open one. */
+function openReelWindow(href) {
+  const w = Math.min(POPUP_W, window.screen.availWidth - 40)
+  const h = Math.min(POPUP_H, window.screen.availHeight - 40)
+  const left = Math.max(0, Math.round(window.screenX + (window.outerWidth - w) / 2))
+  const top = Math.max(0, Math.round(window.screenY + (window.outerHeight - h) / 2))
+  // (not `noopener` here: with it the call never returns the window, so a blocked popup can't be told)
+  const win = window.open(href, 'aadi-reel', `popup,width=${w},height=${h},left=${left},top=${top}`)
+  if (!win) return false
+  win.opener = null
+  win.focus()
+  return true
+}
 
 export function ReelCards({ reels, note }) {
   const ref = useRef(null)
   const [shown, setShown] = useState(false)
   useInView(ref, (v) => v && setShown(true), 0.2)
 
-  const dialogRef = useRef(null)
-  const openerRef = useRef(null)
-  const downOnBackdrop = useRef(false)
-  const titleId = useId()
-  const [playing, setPlaying] = useState(null) // the reel in the viewer
-
   const play = (e, reel) => {
-    const dialog = dialogRef.current
-    if (!dialog || !window.matchMedia(EMBED_HERE).matches || e.ctrlKey || e.metaKey || e.shiftKey) return
-    e.preventDefault()
-    openerRef.current = e.currentTarget
-    setPlaying(reel)
-    dialog.showModal()
-    document.documentElement.classList.add('docview-lock')
+    if (!window.matchMedia(POPUP_HERE).matches || e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return
+    if (openReelWindow(reel.href)) e.preventDefault()
   }
-  const close = () => dialogRef.current?.close()
-  const onClose = () => {
-    setPlaying(null) // the iframe goes, and the reel's sound with it
-    document.documentElement.classList.remove('docview-lock')
-    openerRef.current?.focus({ preventScroll: true })
-  }
-  useEffect(() => () => document.documentElement.classList.remove('docview-lock'), [])
 
   return (
     <div ref={ref} className={`side-reels${shown ? ' is-in' : ''}`}>
@@ -148,50 +147,12 @@ export function ReelCards({ reels, note }) {
                     ↗
                   </span>
                 </span>
-                <span className="side-reel__offscreen"> (instagram reel)</span>
+                <span className="side-reel__offscreen"> (instagram reel, opens in a new window)</span>
               </span>
             </a>
           </li>
         ))}
       </ul>
-
-      <dialog
-        ref={dialogRef}
-        className="docview docview--reel"
-        aria-labelledby={titleId}
-        onClose={onClose}
-        onPointerDown={(e) => {
-          downOnBackdrop.current = e.target === e.currentTarget
-        }}
-        onClick={(e) => {
-          if (e.target === e.currentTarget && downOnBackdrop.current) close()
-        }}
-      >
-        {playing && (
-          <div className="docview__frame">
-            <div className="docview__top">
-              <p className="docview__title" id={titleId}>
-                {playing.label}
-              </p>
-              <a className="docview__pdf" href={playing.href} target="_blank" rel="noopener noreferrer">
-                open on instagram ↗<span className="side-reel__offscreen"> (new tab)</span>
-              </a>
-              <button type="button" className="docview__btn" onClick={close} aria-label="Close the reel (Esc)">
-                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
-                  <path d="m6 6 12 12M18 6 6 18" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" fill="none" />
-                </svg>
-              </button>
-            </div>
-            <iframe
-              className="docview__reel"
-              src={`${playing.href.replace(/\/?$/, '/')}embed/captioned/`}
-              title={`Instagram reel: ${playing.label}`}
-              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-              allowFullScreen
-            />
-          </div>
-        )}
-      </dialog>
     </div>
   )
 }

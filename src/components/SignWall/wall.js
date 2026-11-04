@@ -145,8 +145,9 @@ export function createWall(canvas, { regulars, surface = canvas, mine = [], redu
 
   function place(e, sl, sw, sh, lo, hi) {
     const b = e.box
-    // a signature too big for its slot is written smaller
-    e.k = Math.max(0.12, Math.min(1, (sw * 0.86) / b.w, (sh - LABEL_PX / s) / b.h))
+    // a signature too big for its slot is written smaller (and one the owner asked for bigger,
+    // e.zoom, is written that much larger than the fit)
+    e.k = Math.max(0.12, Math.min(1, (sw * 0.86) / b.w, (sh - LABEL_PX / s) / b.h)) * (e.zoom || 1)
     const w = b.w * e.k
     const jx = (hash(e.seed) - 0.5) * Math.max(0, sw - w) * 0.8
     const jy = (hash(e.seed * 1.7) - 0.5) * Math.max(0, sh - b.h * e.k - LABEL_PX / s) * 0.7

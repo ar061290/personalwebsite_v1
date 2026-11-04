@@ -8,6 +8,7 @@
 // Racing line is the ashwa page's own (src/content/ashwa.js), cut down.
 import videoCover from '../assets/research/oxide-video-cover.webp'
 import rockoon from '../assets/research/rockoon.webp'
+import cspGraph from '../assets/research/csp-cooling-graph.webp'
 // stills from the middle of each Ashwa Racing reel, him on camera (the CAD one at 64.5 s of 2:09, its
 // exact middle; the CFD one at 49.6 s of 1:29, just past it, where the shoe's pressure plot is up)
 import reelCad from '../assets/research/reel-cad.webp'
@@ -98,8 +99,21 @@ export default {
           id: 'csp', // linked from the CSP award on the academics page
           title: 'IBDP Collaborative Sciences Project: a street-food safety study',
           org: 'Team lead',
+          // the cooling-rate trial's graph, die-cut, in the left column level with this entry
+          aside: {
+            sticker: {
+              src: cspGraph,
+              alt: 'Sticker of the cooling-rate graph: temperature against time for plastic, thick glass, steel and very thin dense ceramic containers',
+              tilt: -4,
+            },
+          },
+          note: 'One tightly defined food, the spiced water served with pani puri, studied at six street stalls across three Gachibowli neighbourhoods: container material, lids and water temperature at each stall, a two-hour open-exposure pH trial on every sample, and an audit of the disposables each stall throws away in a day. Two lab trials backed up the field work: how fast four container materials cool, and how much a wet cotton wrap slows warming. Written up as a preprint (2026).',
           points: [
             'Led a multidisciplinary team across chemistry, biology and physics, and personally ran the heat-transfer modelling and thermodynamic analysis of real-world cooking and storage.',
+            'Every stall held its water at 20.5–26.5 °C, inside the range where mesophilic microbes grow; the one stall using a wet cotton wrap had kept its water below the evening air.',
+            'Container cooling rates ran from thin dense ceramic (−2.52 °C/min) and steel (−2.40) to thick glass (−1.58) and plastic (−0.26): wall thickness and porosity matter as much as the material itself.',
+            'pH fell in every sample over two hours (by 0.2–0.7, mean −0.50), and a stall’s daily dry waste ranged from 179 g to 836 g, with tissues, not bowls, dominating at the busiest stalls.',
+            'The trade-off at the heart of it: the containers that cool best are the least hygienic and the longest-lived as waste, while the best practice seen, a wet cotton wrap on a steel vessel, was also the cheapest and lowest-waste.',
             '1st place: “Outstanding Exploration and Integration of a Significant Global Scientific Issue.”',
           ],
         },
